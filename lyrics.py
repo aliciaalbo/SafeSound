@@ -1,12 +1,16 @@
+import secrets 
+import spotipy
+from spotipy.oauth2 import SpotifyClientCredentials
+import requests 
 
 class GetLyrics():
     
-    def __init__(self, spotify_client_id, spotify_client_secret, user_id, playlist_id, genius_key):
-        self.spotify_client_id = spotify_client_id
-        self.spotify_client_secret = spotify_client_secret
+    def __init__(self, cid, secret, user_id, playlist_id, GENIUS_ACCESS_TOKEN):
+        self.spotify_client_id = cid
+        self.spotify_client_secret = secret
         self.user_id = user_id
         self.playlist_id = playlist_id
-        self.genius_key = genius_key
+        self.genius_key = GENIUS_ACCESS_TOKEN
         
     def get_playlist_info(self):
         token = SpotifyClientCredentials(client_id=self.spotify_client_id, client_secret=self.spotify_client_secret).get_access_token()
@@ -90,3 +94,6 @@ class GetLyrics():
                     print(f"Retrieved track {i} lyrics!")
             song_lyrics.append(lyrics)
         return song_lyrics
+
+songs = GetLyrics(secrets.cid, secrets.secret, "e79265e6858d48e7", '5pHQKHf64r53yj6XyP0Fzk', GENIUS_ACCESS_TOKEN)
+song_lyrics = songs.get_lyrics()
