@@ -28,4 +28,6 @@ def create_custom_filter(user_id, filter_name):
     db.session.add(custom_filter)
     db.session.commit()
 
+# def update_custom_filter(custom_filter_id, word):
+
 

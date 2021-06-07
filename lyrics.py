@@ -6,8 +6,7 @@ genius = lyricsgenius.Genius()
 # Genius.search_song(title=None, artist='', song_id=None, get_full_info=True)
 
 song = genius.search_song(title='In Da Club', artist='', song_id=None, get_full_info=True)
-print(song.lyrics)
-
+# print(song.lyrics)
 if 'shawty' in song.lyrics:
     print('True')
 

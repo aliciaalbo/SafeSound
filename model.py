@@ -22,14 +22,14 @@ class DefaultFilter(db.Model):
 
 class CustomFilter(db.Model):
     """stores default values for lyrics to exclude"""
-    __tablename__ = "default_filters"
+    __tablename__ = "custom_filters"
 
     custom_filter_id = db.Column(db.String, primary_key=True, autoincrement=True)
-    user_id = db.Column(db.Interger, db.ForgeinKey('users.user_id'))
+    user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     filter_name = db.Column(db.String)
     word_list = db.Column(db.String)
 
-    db.Relationship(User, backref='default_filters')
+    db.relationship(User, backref='default_filters')
 
 def connect_to_db(flask_app, db_uri='postgresql:///safesound', echo=True):
     # ignoring passed-in db_uri so it works on the server
