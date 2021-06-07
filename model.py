@@ -6,20 +6,32 @@ db = SQLAlchemy()
 
 class User(db.Model):
     """stores user data"""
-    __tablename = "users"
+    __tablename__ = "users"
 
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String)
-    fname = db.Column(db.String)
-    lname = db.Column(db.String)
+    name = db.Column(db.String)
     password = db.Column(db.String)
 
-class User(db.Model):
-    """stores user data"""
-    __tablename = "users"
+class DefaultFilters(db.Model):
+    """stores default values for lyrics to exclude"""
+    __tablename__ = "default_filters"
 
+    default_filter_id = db.Column(db.String, primary_key=True)
+    word_list = db.Column(db.String)
 
-def connect_to_db(flask_app, db_uri='postgresql:///spotify03132021', echo=True):
+class CustomFilters(db.Model):
+    """stores default values for lyrics to exclude"""
+    __tablename__ = "default_filters"
+
+    custom_filter_id = db.Column(db.String, primary_key=True, autoincrement=True)
+    filter_name = db.Column(db.String)
+    word_list = db.Column(db.String)
+    user_id = db.Column(db.Interger, db.ForgeinKey('users.user_id'))
+
+    db.Relationship(User, backref='default_filters')
+
+def connect_to_db(flask_app, db_uri='postgresql:///safesound', echo=True):
     # ignoring passed-in db_uri so it works on the server
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = secrets.db_uri
     flask_app.config['SQLALCHEMY_ECHO'] = echo
