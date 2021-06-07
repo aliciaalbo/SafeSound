@@ -13,21 +13,21 @@ class User(db.Model):
     name = db.Column(db.String)
     password = db.Column(db.String)
 
-class DefaultFilters(db.Model):
+class DefaultFilter(db.Model):
     """stores default values for lyrics to exclude"""
     __tablename__ = "default_filters"
 
     default_filter_id = db.Column(db.String, primary_key=True)
     word_list = db.Column(db.String)
 
-class CustomFilters(db.Model):
+class CustomFilter(db.Model):
     """stores default values for lyrics to exclude"""
     __tablename__ = "default_filters"
 
     custom_filter_id = db.Column(db.String, primary_key=True, autoincrement=True)
+    user_id = db.Column(db.Interger, db.ForgeinKey('users.user_id'))
     filter_name = db.Column(db.String)
     word_list = db.Column(db.String)
-    user_id = db.Column(db.Interger, db.ForgeinKey('users.user_id'))
 
     db.Relationship(User, backref='default_filters')
 

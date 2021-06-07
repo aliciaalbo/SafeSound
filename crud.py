@@ -1,6 +1,6 @@
 
 
-from model import db, connect_to_db, User, DefaultFilters, CustomFilters
+from model import db, connect_to_db, User, DefaultFilter, CustomFilter
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
@@ -16,6 +16,16 @@ def create_user(email, name, password):
     )
 
     db.session.add(user)
+    db.session.commit()
+
+def create_custom_filter(user_id, filter_name):
+    """creates empty custom filter"""
+    custom_filter = CustomFilter(
+        user_id = user_id,
+        filter_name = filter_name
+    )
+
+    db.session.add(custom_filter)
     db.session.commit()
 
 
