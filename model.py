@@ -13,23 +13,29 @@ class User(db.Model):
     name = db.Column(db.String)
     password = db.Column(db.String)
 
-class DefaultFilter(db.Model):
-    """stores default values for lyrics to exclude"""
-    __tablename__ = "default_filters"
 
-    default_filter_id = db.Column(db.String, primary_key=True)
-    word_list = db.Column(db.String)
+class Filter(db.Model):
+    """stores values for lyrics to exclude"""
+    __tablename__ = "filters"
 
-class CustomFilter(db.Model):
-    """stores default values for lyrics to exclude"""
-    __tablename__ = "custom_filters"
-
-    custom_filter_id = db.Column(db.String, primary_key=True, autoincrement=True)
+    filter_id = db.Column(db.String, primary_key=True, autoincrement=True)
     user_id = db.Column(db.Integer, db.ForeignKey('users.user_id'))
     filter_name = db.Column(db.String)
     word_list = db.Column(db.String)
 
-    db.relationship(User, backref='default_filters')
+    db.relationship(User, backref='filters')
+
+class CachedResult():
+    """store results of filters applied to individual songs"""
+    __tablename__ = "cached_results"
+
+    cached_result_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    track_id = db.Column(db.String)
+    filter_id = db.Column(db.String, db.ForeignKey('filters.filter_id'))
+    pass_status = db.Column(db.Boolean)
+
+
+
 
 def connect_to_db(flask_app, db_uri='postgresql:///safesound', echo=True):
     # ignoring passed-in db_uri so it works on the server

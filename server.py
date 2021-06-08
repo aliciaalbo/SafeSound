@@ -28,7 +28,7 @@ def search_for_playlists(term):
     for item in playlists:
         playlist_data[item]['id'] = [item]['name']
 
-    return print(spotify.search(term, type='playlist'))
+    return print(playlist_data)
 
 def get_song_titles():
     """get song titles and id's from Spotify playlist"""
