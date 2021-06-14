@@ -62,12 +62,21 @@ def get_song_info(playlist):
         except(TypeError):
             continue    
     
-def cache_lyrics(lyrics, track_id):
-    """creates a set of unique words in lyrics and returns them as a string"""
+def create_lyrics(lyrics, track_id):
+    """creates a set of unique words in lyrics and returns them as a string separated by line breaks"""
     unique_lyrics = set()
     for word in lyrics:
         unique_lyrics.add(word)
     return "\n".join(list(unique_lyrics))
+
+def apply_filter(filter_id, lyrics):
+    """checks lyrics for each work in filter word list"""
+    words = "/n".split(lyrics)
+    check_words = db.session.query(Filter.word_list).filter(Filter.filter_id).all()
+    for word in check_words:
+        if word in words:
+            return False
+    return True
 
 # def update_custom_filter(custom_filter_id, word):
 
