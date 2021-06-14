@@ -11,7 +11,9 @@ class User(db.Model):
     user_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     email = db.Column(db.String)
     name = db.Column(db.String)
-    password = db.Column(db.String)
+    spotify_id = db.Column(db.String)
+    access_token = db.Column(db.String)
+    refresh_token = db.Column(db.String)
 
 
 class Filter(db.Model):

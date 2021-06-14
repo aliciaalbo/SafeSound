@@ -37,6 +37,10 @@ def create_filter(user_id, filter_name):
 def add_filter_term(filter_id, term):
     """adds word or phrase to filter criteria"""
 
+def search_for_playlists(search_term):
+    """searches Spotify for playlists and returns top 50"""
+    return spotify.search(search_term, type="playlist")
+
 def get_song_info(playlist):
     """get song titles and id's from Spotify playlist"""
     response = spotify.playlist_items(playlist,
