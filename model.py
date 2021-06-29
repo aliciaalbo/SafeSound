@@ -44,6 +44,7 @@ class CachedLyrics():
     title = db.Column(db.String)
     artist = db.Column(db.String)
     album_art = db.Column(db.String)
+    lyrics = db.Column(db.Text)
 
 
 

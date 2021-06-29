@@ -5,11 +5,14 @@ import spotipy
 from spotipy.oauth2 import SpotifyOAuth
 import os
 import secrets
+import lyricsgenius
 
 cid = secrets.cid
 secret = secrets.secret
 client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+genius = lyricsgenius.Genius()
+
 
 def create_user(email, name, password):
     """add new user to database"""
@@ -41,11 +44,12 @@ def create_filter(user_id, filter_name):
 
 def find_song_lyrics(title):
     """searches genius for single title and returns lyrics as string"""
+    return genius.search_song(title= title, artist='', song_id=None, get_full_info=True)
 
 def find_playlist_lyrics(playlist_id):
     """searches genius for batch of songs, returns dictionary(? tbd)"""
 
-def create_lyrics(lyrics, track_id):
+def create_lyrics(lyrics):
     """creates a set of unique words in lyrics and returns them as a string separated by line breaks"""
     unique_lyrics = set()
     for word in lyrics:
@@ -78,7 +82,26 @@ def save_status(track_id, filter_id):
     """saves pass/fail status of track for chosen filter"""
 
 
+def filter_cache_check(track_id, filter_id):
+    """checks if filter has previously been applied to track"""
+    entry = CachedResult.query.filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id).first()
+    if entry:
+        return True
+    return False
 
+def get_cached_results(track_id, filter_id):
+    """returns cached pass/fail status of filter applied to track"""
+    return CachedResult.query(CachedResult.pass_status).filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id)
+
+def lyrics_cache_check(track_id):
+    """checks if lyrics are saved"""
+    if CachedLyrics.query.filter(CachedLyrics.track_id == track_id).first():
+        return True
+    return False
+
+def get_lyrics_by_track_id(track_id):
+    """retrieves cahched_lyrics from db"""
+    return CachedLyrics.query(CachedLyrics.lyrics).filter(CachedLyrics.track_id == track_id).first()
 
 def search_for_playlists(search_term):
     """searches Spotify for playlists and returns top 50"""
