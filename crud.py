@@ -45,15 +45,40 @@ def find_song_lyrics(title):
 def find_playlist_lyrics(playlist_id):
     """searches genius for batch of songs, returns dictionary(? tbd)"""
 
+def create_lyrics(lyrics, track_id):
+    """creates a set of unique words in lyrics and returns them as a string separated by line breaks"""
+    unique_lyrics = set()
+    for word in lyrics:
+        unique_lyrics.add(word)
+    return "\n".join(list(unique_lyrics))
 
-def apply apply_filter(filter_id, lyrics):
+def save_lyrics(unique_lyrics, track_id, artist, album_art):
+    """saves unique words in lyrics as string separated by line breaks with track info"""
+    cached_lyrics = CachedLyrics(
+                    unique_lyrics = unique_lyrics
+                    track_id = track_id
+                    artist = artist
+                    album_art = album_art
+    )
+    db.session.add(cached_lyrics)
+    db.session.commit()
+
+
+def apply_filter(filter_id, lyrics):
     """checks for exact match of excluded terms, returns boolean"""
+        words = "/n".split(lyrics)
+    check_words = db.session.query(Filter.word_list).filter(Filter.filter_id).all()
+    for word in check_words:
+        if word in words:
+            return False
+    return True
 
 
 def save_status(track_id, filter_id):
     """saves pass/fail status of track for chosen filter"""
 
-def 
+
+
 
 def search_for_playlists(search_term):
     """searches Spotify for playlists and returns top 50"""
@@ -86,21 +111,8 @@ def search_for_playlists(search_term):
 #         except(TypeError):
 #             continue    
     
-def create_lyrics(lyrics, track_id):
-    """creates a set of unique words in lyrics and returns them as a string separated by line breaks"""
-    unique_lyrics = set()
-    for word in lyrics:
-        unique_lyrics.add(word)
-    return "\n".join(list(unique_lyrics))
 
-def apply_filter(filter_id, lyrics):
-    """checks lyrics for each work in filter word list"""
-    words = "/n".split(lyrics)
-    check_words = db.session.query(Filter.word_list).filter(Filter.filter_id).all()
-    for word in check_words:
-        if word in words:
-            return False
-    return True
+
 
 
 
