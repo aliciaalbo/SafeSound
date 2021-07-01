@@ -2,7 +2,8 @@
 
 from model import db, connect_to_db, User, Filter
 import spotipy
-from spotipy.oauth2 import SpotifyOAuth
+from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
+
 import os
 import secrets
 import lyricsgenius
@@ -14,13 +15,13 @@ spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 genius = lyricsgenius.Genius()
 
 
-def create_user(email, name, password):
+def create_user(email, name):
     """add new user to database"""
 
     user = User(
         email = email,
-        name = name,
-        passwrod = password
+        name = name
+        # password = password
     )
 
     db.session.add(user)
@@ -44,7 +45,9 @@ def create_filter(user_id, filter_name):
 
 def find_song_lyrics(title):
     """searches genius for single title and returns lyrics as string"""
-    return genius.search_song(title= title, artist='', song_id=None, get_full_info=True)
+    song = genius.search_song(title= title, artist='', song_id=None, get_full_info=True)
+    lyrics = song.lyrics
+    return lyrics
 
 def find_playlist_lyrics(playlist_id):
     """searches genius for batch of songs, returns dictionary(? tbd)"""
@@ -59,9 +62,9 @@ def create_lyrics(lyrics):
 def save_lyrics(unique_lyrics, track_id, artist, album_art):
     """saves unique words in lyrics as string separated by line breaks with track info"""
     cached_lyrics = CachedLyrics(
-                    unique_lyrics = unique_lyrics
-                    track_id = track_id
-                    artist = artist
+                    unique_lyrics = unique_lyrics,
+                    track_id = track_id,
+                    artist = artist,
                     album_art = album_art
     )
     db.session.add(cached_lyrics)
@@ -70,7 +73,7 @@ def save_lyrics(unique_lyrics, track_id, artist, album_art):
 
 def apply_filter(filter_id, lyrics):
     """checks for exact match of excluded terms, returns boolean"""
-        words = "/n".split(lyrics)
+    words = "/n".split(lyrics)
     check_words = db.session.query(Filter.word_list).filter(Filter.filter_id).all()
     for word in check_words:
         if word in words:
