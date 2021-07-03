@@ -4,6 +4,8 @@ import useStickyState from "./useStickyState";
 import WebPlayer from "./webplayer";
 import PlaylistSearch from "./playlistSearch"
 import SpotifyLogin from './spotifylogin';
+import ShowPlaylists from './playlists';
+import ShowSongs from './songs';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -53,6 +55,8 @@ function App() {
         <div>SAFESOUND, DANGERBALLS</div>
         <PlaylistSearch />
         <SpotifyLogin />
+        <ShowPlaylists />
+        <ShowSongs />
       </section>
     );
   }
