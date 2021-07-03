@@ -3,6 +3,7 @@ import ReactDOM from 'react-dom';
 import useStickyState from "./useStickyState";
 import WebPlayer from "./webplayer";
 import PlaylistSearch from "./playlistSearch"
+import SpotifyLogin from './spotifylogin';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -51,6 +52,7 @@ function App() {
       <section className="page">
         <div>SAFESOUND, DANGERBALLS</div>
         <PlaylistSearch />
+        <SpotifyLogin />
       </section>
     );
   }
