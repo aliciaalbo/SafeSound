@@ -9,7 +9,7 @@ function PlaylistSearch(props) {
     
     return (
         <div className="searchbar">
-          <Form variant="dark" className="search-form" onSubmit={e => { handleSubmit(e) }}>
+          <form variant="dark" className="search-form" onSubmit={e => { handleSubmit(e) }}>
         <div className="">
           <input variant="dark" type="text" className="form-control" name="playlistSearchTerm" defaultValue={props.zipcode} placeholder="Zip Code" required />
           <div className="input-group-append">
@@ -18,7 +18,7 @@ function PlaylistSearch(props) {
             </button>
           </div>
         </div>
-          </Form>
+          </form>
         </div>
       
       

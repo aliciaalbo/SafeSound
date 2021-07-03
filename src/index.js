@@ -1,6 +1,7 @@
 import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import useStickyState from "./useStickyState";
+import WebPlayer from "./webplayer";
 import PlaylistSearch from "./playlistSearch"
 
 function App() {
@@ -8,6 +9,9 @@ function App() {
 
     // player state items we don't want to persist
     const [isReady, setIsReady] = useState("");
+    const [access_token, setAccessToken] = useStickyState("", "access_token");
+    const [name, setName] = useStickyState("", "name");
+    const [email, setEmail] = useStickyState("", "email");
     const [deviceId, setDeviceId] = useState("");
     const [isPaused, setIsPaused] = useState(true);
     const [curTrackId, setCurTrackId] = useState("");
@@ -20,21 +24,21 @@ function App() {
     // load the access token through Python's session if can
     if (!access_token) {
       console.log('access token check');
-      fetch(`/api?do=getInfo`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          console.log(data)
-          setAccessToken(data.access_token);
-          setName(data.name);
-          setEmail(data.email);
+      // fetch(`/api?do=getInfo`)
+      // .then((response) => response.json())
+      // .then((data) => {
+      //   if (data) {
+      //     console.log(data)
+      //     setAccessToken(data.access_token);
+      //     setName(data.name);
+      //     setEmail(data.email);
         
-          console.log('access token set!');
-        }
-      })
-      .catch((err) => {
-        console.log("ERROR: ",err);
-      });
+      //     console.log('access token set!');
+      //   }
+      // })
+      // .catch((err) => {
+      //   console.log("ERROR: ",err);
+      // });
     }
 
     const fetchPlaylists = (playlistSearchTerm) => {
@@ -43,9 +47,13 @@ function App() {
       fetch(`/api?do=getPlaylists&zterm=${encodeURIComponent(playlistSearchTerm)}`)
     }
 
-
+    return (
+      <section className="page">
+        <div>SAFESOUND, DANGERBALLS</div>
+        <PlaylistSearch />
+      </section>
+    );
   }
-
 
 ReactDOM.render(<App />, document.getElementById("app"));
 
