@@ -1,17 +1,52 @@
-import React from 'react';
+import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
-import './index.css';
-import App from './App';
-import reportWebVitals from './reportWebVitals';
+import useStickyState from "./useStickyState";
+import PlaylistSearch from "./playlistSearch"
 
-ReactDOM.render(
-  <React.StrictMode>
-    <App />
-  </React.StrictMode>,
-  document.getElementById('root')
-);
+function App() {
+    const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
 
-// If you want to start measuring performance in your app, pass a function
-// to log results (for example: reportWebVitals(console.log))
-// or send to an analytics endpoint. Learn more: https://bit.ly/CRA-vitals
-reportWebVitals();
+    // player state items we don't want to persist
+    const [isReady, setIsReady] = useState("");
+    const [deviceId, setDeviceId] = useState("");
+    const [isPaused, setIsPaused] = useState(true);
+    const [curTrackId, setCurTrackId] = useState("");
+    const [playbackToggle, setPlaybackToggle] = useState('no');
+
+    // instantiate the Spotify Player passes props in object to webplayer.js
+    //  isPaused: isPaused, curTrackId: curTrackId, 
+    let webplayer = WebPlayer({ access_token: access_token, isReady: isReady, setIsReady: setIsReady, setDeviceId: setDeviceId, setIsPaused: setIsPaused, setCurTrackId: setCurTrackId });
+
+    // load the access token through Python's session if can
+    if (!access_token) {
+      console.log('access token check');
+      fetch(`/api?do=getInfo`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          console.log(data)
+          setAccessToken(data.access_token);
+          setName(data.name);
+          setEmail(data.email);
+        
+          console.log('access token set!');
+        }
+      })
+      .catch((err) => {
+        console.log("ERROR: ",err);
+      });
+    }
+
+    const fetchPlaylists = (playlistSearchTerm) => {
+      setPlaylistSearchTerm(playlistSearchTerm);
+
+      fetch(`/api?do=getPlaylists&zterm=${encodeURIComponent(playlistSearchTerm)}`)
+    }
+
+
+  }
+
+
+ReactDOM.render(<App />, document.getElementById("app"));
+
+export default App;
