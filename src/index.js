@@ -47,7 +47,7 @@ function App() {
     const fetchPlaylists = (playlistSearchTerm) => {
       setPlaylistSearchTerm(playlistSearchTerm);
 
-      fetch(`/api?do=getPlaylists&zterm=${encodeURIComponent(playlistSearchTerm)}`)
+      fetch(`/api?do=getPlaylists&term=${encodeURIComponent(playlistSearchTerm)}`)
     }
 
     return (

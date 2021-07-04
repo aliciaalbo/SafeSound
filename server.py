@@ -25,7 +25,37 @@ def show_homepage():
 
     return render_template('homepage.html')
 
-# @app.route('/api')
+@app.route('/api')
+def parse_api():
+    """catches and parses data from external api call and runs appropriate functions"""
+    do = request.args.get('do')
+    if do == "getInfo":
+        access_token = session.get('access_token')
+        if (access_token):
+            user = crud.get_user_by_access_token(session.get('access_token'))
+            return jsonify({ 'access_token': access_token, 'email': user.email, 'name': user.name })
+        return jsonify({ 'access_token': "", 'email': "", 'name': "" })
+    elif do == "getPlaylists":
+        search_term = request.args.get(term)
+        res = crud.search_for_playlists(search_term)
+        playlist_data = []
+        # ids = []
+        # art = []
+        # title = []
+        # description = []
+        # All references working/correct, need to noodle on data structure a bit more
+        for i, item in enumerate(res['playlists']['items']):
+            data = {}
+            data['id'] = item['id']
+            data['description'] = item['description']
+            data['name'] = item['name']
+            data['art'] = item['images'][0]['url']
+            playlist_data.append(data)
+
+        return jsonify   
+
+
+
 # def search_for_playlists(term):
 #     """searches Spotify for playlists, returns playlists"""
 #     playlists = spotify.search(term, type='playlist')

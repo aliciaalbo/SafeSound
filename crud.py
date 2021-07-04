@@ -12,7 +12,7 @@ cid = secrets.cid
 secret = secrets.secret
 client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-genius = lyricsgenius.Genius()
+# genius = lyricsgenius.Genius()
 
 
 def create_user(email, name):
@@ -107,8 +107,9 @@ def get_lyrics_by_track_id(track_id):
     return CachedLyrics.query(CachedLyrics.lyrics).filter(CachedLyrics.track_id == track_id).first()
 
 def search_for_playlists(search_term):
-    """searches Spotify for playlists and returns top 50"""
-    return spotify.search(search_term, type="playlist")
+    """searches Spotify for playlists and returns top 10 playlist objects"""
+    response = spotify.search(search_term, type="playlist")
+    return response
 
 
 # refactor to get title, atrist, art, track id  
