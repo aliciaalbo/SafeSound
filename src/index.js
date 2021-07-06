@@ -2,6 +2,7 @@ import React, {useState} from 'react';
 import ReactDOM from 'react-dom';
 import useStickyState from "./useStickyState";
 import WebPlayer from "./webplayer";
+import SpotPlayer from "./spotplayer";
 import PlaylistSearch from "./playlistSearch"
 import SpotifyLogin from './spotifylogin';
 import ShowPlaylists from './playlists';
@@ -19,9 +20,6 @@ function App() {
 
     // player state items we don't want to persist
     const [isReady, setIsReady] = useState("");
-    const [access_token, setAccessToken] = useStickyState("", "access_token");
-    const [name, setName] = useStickyState("", "name");
-    const [email, setEmail] = useStickyState("", "email");
     const [deviceId, setDeviceId] = useState("");
     const [isPaused, setIsPaused] = useState(true);
     const [curTrackId, setCurTrackId] = useState("");
@@ -84,6 +82,12 @@ function App() {
         <ShowPlaylists />
         <ShowSongs />
         <Logout />
+        {access_token && deviceId ? 
+              
+              <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />
+              
+              : null}
+              {/* add to spotplayer later playlist={playlist} */}
       </section>
     );
   }
