@@ -5,6 +5,7 @@ import crud
 # import model
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
+from spotipy.oauth2 import SpotifyOAuth
 import secrets
 # import os
 
@@ -16,8 +17,11 @@ connect_to_db(app)
 
 cid = secrets.cid
 secret = secrets.secret
+SPOTIPY_REDIRECT_URI = secrets.spotifyredirect
 client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
+SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
+auth_manager = SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
 
 @app.route('/')
 def show_homepage():
@@ -35,6 +39,12 @@ def parse_api():
             user = crud.get_user_by_access_token(session.get('access_token'))
             return jsonify({ 'access_token': access_token, 'email': user.email, 'name': user.name })
         return jsonify({ 'access_token': "", 'email': "", 'name': "" })
+    elif do == "logout":
+        email = request.args.get('email')
+        session.clear()
+        if (email):
+            return crud.logout(email)
+        return "Could not logout, no access token"
     elif do == "getPlaylists":
         search_term = request.args.get(term)
         res = crud.search_for_playlists(search_term)
@@ -100,7 +110,7 @@ def get_email_and_token():
     # email = sp.user(email)
     # pprint.pprint(email)
     # # token = crud.get_spotify_credentials(code)
-    return redirect('/')
+    return redirect('http://localhost:3000')
 
 
 if __name__ == '__main__':

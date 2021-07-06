@@ -1,6 +1,5 @@
 import React from 'react';
 
-
 function SpotifyLogin() {
   const handleClick = (e) => {
     e.preventDefault();
@@ -10,9 +9,9 @@ function SpotifyLogin() {
     // to show the favorite button: user-library-read user-library-modify
     // also in there for some reason: user-read-currently-playing
     const scopes = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing';
-    const callbackurl = window.location.origin + '/callback';
+    const callbackurl = 'http://localhost:5000/callback';
     window.location.href='https://accounts.spotify.com/authorize?response_type=code' +
-    '&client_id=8e55de46675c4563830a205d05fc767a' +
+    '&client_id=abaeefb2130e47db9598b38066ae8d5b' +
     (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
     '&redirect_uri=' + encodeURIComponent(callbackurl);
   };
