@@ -62,7 +62,8 @@ def parse_api():
             data['art'] = item['images'][0]['url']
             playlist_data.append(data)
 
-        return playlist_data   
+        return playlist_data
+   
 
 
 

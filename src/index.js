@@ -6,10 +6,16 @@ import PlaylistSearch from "./playlistSearch"
 import SpotifyLogin from './spotifylogin';
 import ShowPlaylists from './playlists';
 import ShowSongs from './songs';
+import Logout from "./logout";
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
     const [playlists, setPlaylists] = useStickyState("", "playlists");
+    const [playstate, setPlaystate] = useStickyState("");
+    const [access_token, setAccessToken] = useStickyState("", "access_token");
+    const [name, setName] = useStickyState("", "name");
+    const [email, setEmail] = useStickyState("", "email");
+
 
     // player state items we don't want to persist
     const [isReady, setIsReady] = useState("");
@@ -28,21 +34,21 @@ function App() {
     // load the access token through Python's session if can
     if (!access_token) {
       console.log('access token check');
-      // fetch(`/api?do=getInfo`)
-      // .then((response) => response.json())
-      // .then((data) => {
-      //   if (data) {
-      //     console.log(data)
-      //     setAccessToken(data.access_token);
-      //     setName(data.name);
-      //     setEmail(data.email);
+      fetch(`/api?do=getInfo`)
+      .then((response) => response.json())
+      .then((data) => {
+        if (data) {
+          console.log(data)
+          setAccessToken(data.access_token);
+          setName(data.name);
+          setEmail(data.email);
         
-      //     console.log('access token set!');
-      //   }
-      // })
-      // .catch((err) => {
-      //   console.log("ERROR: ",err);
-      // });
+          console.log('access token set!');
+        }
+      })
+      .catch((err) => {
+        console.log("ERROR: ",err);
+      });
     }
 
     const fetchPlaylists = (playlistSearchTerm) => {
@@ -55,6 +61,21 @@ function App() {
               setPlaylists(res)})
     }
 
+    const logoutUser = (email) => {
+      if (email) {
+        fetch(`/api?do=logout&email=${encodeURIComponent(email)}`)
+        .then(() => {
+          console.log('logout attempt')
+          setAccessToken("");
+          setName("");
+          setEmail("");
+        })
+        .catch((err) => {
+            console.log("ERROR: ",err);
+        });
+      }
+    };
+
     return (
       <section className="page">
         <div>SAFESOUND, DANGERBALLS</div>
@@ -62,6 +83,7 @@ function App() {
         <SpotifyLogin />
         <ShowPlaylists />
         <ShowSongs />
+        <Logout />
       </section>
     );
   }
