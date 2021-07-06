@@ -52,7 +52,7 @@ def parse_api():
             data['art'] = item['images'][0]['url']
             playlist_data.append(data)
 
-        return jsonify   
+        return playlist_data   
 
 
 
@@ -69,38 +69,38 @@ def parse_api():
 # return redirect('/')
 
 
-# @app.route('/callback')
-# def get_email_and_token():
-#     if request.args.get('code'):
-#         #token = crud.get_spotify_token(request.args.get('code'))
-#         token_info = auth_manager.get_access_token(request.args.get('code'), check_cache=False)
-#         spotify = spotipy.Spotify(auth_manager=auth_manager)
-#         email = spotify.me()["email"]
-#         name = spotify.me()["display_name"]
-#         spotify_id = spotify.me()["id"]
-#         refresh_token = token_info['refresh_token']
-#         access_token = token_info['access_token']
-#         # set the access token in a session cookie so it will persist and can be grabbed by React through an API call
-#         session['access_token'] = access_token
+@app.route('/callback')
+def get_email_and_token():
+    if request.args.get('code'):
+        #token = crud.get_spotify_token(request.args.get('code'))
+        token_info = auth_manager.get_access_token(request.args.get('code'), check_cache=False)
+        spotify = spotipy.Spotify(auth_manager=auth_manager)
+        email = spotify.me()["email"]
+        name = spotify.me()["display_name"]
+        spotify_id = spotify.me()["id"]
+        refresh_token = token_info['refresh_token']
+        access_token = token_info['access_token']
+        # set the access token in a session cookie so it will persist and can be grabbed by React through an API call
+        session['access_token'] = access_token
 
-#         if crud.get_user_by_email(email):
-#             # Do something to login.. send access token to react? 
-#             # then if access toekn show save playlist buttn that isn't made yet
-#             crud.update_access_token(email, access_token)
-#             crud.update_refresh_token(email, refresh_token)
-#         else:
-#             crud.create_user(email, name, spotify_id, access_token, refresh_token)
+        if crud.get_user_by_email(email):
+            # Do something to login.. send access token to react? 
+            # then if access toekn show save playlist buttn that isn't made yet
+            crud.update_access_token(email, access_token)
+            crud.update_refresh_token(email, refresh_token)
+        else:
+            crud.create_user(email, name, spotify_id, access_token, refresh_token)
 
-#         # set the access token cookie for React
-#         #response = redirect('/', 302)
-#         # secure=True only if using https, otherwise it won't set the cookie
-#         #response.set_cookie('access_cookie', access_token, secure=False, httponly=False)
-#         #return response
+        # set the access token cookie for React
+        #response = redirect('/', 302)
+        # secure=True only if using https, otherwise it won't set the cookie
+        #response.set_cookie('access_cookie', access_token, secure=False, httponly=False)
+        #return response
 
-#     # email = sp.user(email)
-#     # pprint.pprint(email)
-#     # # token = crud.get_spotify_credentials(code)
-#     return redirect('/')
+    # email = sp.user(email)
+    # pprint.pprint(email)
+    # # token = crud.get_spotify_credentials(code)
+    return redirect('/')
 
 
 if __name__ == '__main__':

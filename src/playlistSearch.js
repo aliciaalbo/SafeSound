@@ -14,6 +14,7 @@ function PlaylistSearch(props) {
           <input variant="dark" type="text" className="form-control" name="playlistSearchTerm" defaultValue={props.zipcode} placeholder="Search for Playlists" required />
           <div className="input-group-append">
             <button variant="dark" className="" type="submit">
+            <span>Search for Playlists</span>
             </button>
           </div>
         </div>

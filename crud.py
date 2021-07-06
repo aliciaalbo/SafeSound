@@ -15,17 +15,70 @@ spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 # genius = lyricsgenius.Genius()
 
 
-def create_user(email, name):
-    """add new user to database"""
+def create_user(email, name, spotify_id, access_token, refresh_token):
+    """add new user to db and stores their tokens"""
 
-    user = User(
-        email = email,
-        name = name
-        # password = password
-    )
+    user = User(email = email,
+                name = name,
+                spotify_id = spotify_id,
+                access_token = access_token,
+                refresh_token = refresh_token)
 
     db.session.add(user)
     db.session.commit()
+    return user
+
+
+def logout(email):
+    """logs user out of spotify by deleting their tokens"""
+    if (email):
+        user = get_user_by_email(email)
+        print(user)
+        update_access_token(user.email, "")
+        update_refresh_token(user.email, "")
+        db.session.add(user)
+        db.session.commit()
+        return "Logout successful"
+    return "Could not logout, no access token"
+
+def get_user_by_access_token(access_token):
+    return User.query.filter(User.access_token == access_token).first()
+
+def get_user_by_email(email):
+    """Gets a user by email"""
+    return User.query.filter(User.email == email).first()
+
+def get_access_token_by_email(email):
+    """retrieves access token from db by email lookup"""
+    return User.query(User.access_token).filter(User.email == email)
+
+def get_refresh_token_by_email(email):
+    """retrieves access token from db by email lookup"""
+    return User.query(User.refresh_token).filter(User.email == email)
+
+def update_access_token(email, access_token):
+    """updates a user's spotify access token"""
+
+    user = User.query.filter(User.email == email).first()
+    user.access_token = access_token
+    db.session.add(user)
+    db.session.commit()
+
+    return user
+
+
+def update_refresh_token(email, refresh_token):
+    """updates a user's spotify access token"""
+
+    user = User.query.filter(User.email == email).first()
+    user.refresh_token = refresh_token
+    db.session.add(user)
+    db.session.commit()
+
+    return user
+
+
+
 
 def create_filter(user_id, filter_name):
     """creates empty filter"""

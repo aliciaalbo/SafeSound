@@ -9,6 +9,7 @@ import ShowSongs from './songs';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
+    const [playlists, setPlaylists] = useStickyState("", "playlists");
 
     // player state items we don't want to persist
     const [isReady, setIsReady] = useState("");
@@ -48,12 +49,16 @@ function App() {
       setPlaylistSearchTerm(playlistSearchTerm);
 
       fetch(`/api?do=getPlaylists&term=${encodeURIComponent(playlistSearchTerm)}`)
+      .then((res) => res.json())
+      .then((res) => {
+              console.log(res)  
+              setPlaylists(res)})
     }
 
     return (
       <section className="page">
         <div>SAFESOUND, DANGERBALLS</div>
-        <PlaylistSearch />
+        <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
         <ShowPlaylists />
         <ShowSongs />
