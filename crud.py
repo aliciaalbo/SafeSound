@@ -77,8 +77,36 @@ def update_refresh_token(email, refresh_token):
 
     return user
 
+def get_spotify_token(code):
+    cid = secrets.cid
+    secret = secrets.secret
+    SPOTIFY_REDIRECT_URI = secrets.spotifyredirect
+    SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
 
+    # CacheDBHandler is a custom class you need to write to store and retrieve cache in the DB, in cachedb.py
+    auth_manager = SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
+    # ignore cache until make it work
+    token_info = auth_manager.get_access_token(code, check_cache=False)
+    return token_info
 
+def get_spotify_credentials(code):
+    """submits authorization code to spotify to get token and user email"""
+
+    # https://github.com/plamere/spotipy/blob/master/spotipy/util.py
+    # http://www.acmesystems.it/python_httpd
+
+    # query db for access
+    # check id fresh
+    # if yes save play list
+    cid = secrets.cid
+    secret = secrets.secret
+    SPOTIFY_REDIRECT_URI = secrets.spotifyredirect
+    SCOPE = 'web-playback user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
+    CACHE = '.spotipyoauthcache'
+
+    # CacheDB is a custom class you need to make to store the cache in the DB
+    sp_oauth = oauth2.SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
+    #sp_oauth = oauth2.SpotifyPKCE(cid,SPOTIPY_REDIRECT_URI,scope=SCOPE,cache_handler="CacheDB")
 
 def create_filter(user_id, filter_name):
     """creates empty filter"""
