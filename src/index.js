@@ -8,6 +8,7 @@ import SpotifyLogin from './spotifylogin';
 import ShowPlaylists from './playlists';
 import ShowSongs from './songs';
 import Logout from "./logout";
+import Filters from "./filters";
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -16,6 +17,10 @@ function App() {
     const [access_token, setAccessToken] = useStickyState("", "access_token");
     const [name, setName] = useStickyState("", "name");
     const [email, setEmail] = useStickyState("", "email");
+    const [profanityIsActive, setProfanityIsActive] = useStickyState(false);
+    const [sexyIsActive, setSexyIsActive] = useStickyState(false);
+    const [racistIsActive, setRacistIsActive] = useStickyState(false);
+    
 
 
     // player state items we don't want to persist
@@ -24,6 +29,8 @@ function App() {
     const [isPaused, setIsPaused] = useState(true);
     const [curTrackId, setCurTrackId] = useState("");
     const [playbackToggle, setPlaybackToggle] = useState('no');
+    const [pid, setPid] = useState("");
+    const [isError, setIsError] = useState(false);
 
     // instantiate the Spotify Player passes props in object to webplayer.js
     //  isPaused: isPaused, curTrackId: curTrackId, 
@@ -59,6 +66,41 @@ function App() {
               setPlaylists(res)})
     }
 
+    const activateFilter = (filter) => {
+      if(filter === "profanity"){
+        setProfanityIsActive(true);
+        console.log('profanity filter active')
+      };
+      if(filter === "sexy"){
+        setSexyIsActive(true);
+        console.log('sexy filter active')
+      };
+      if(filter === "racist"){
+        setRacistIsActive(true);
+        console.log('racist filter active')
+      };
+    }
+
+    const deactivateFilter = (filter) => {
+      if(filter === "profanity"){
+        setProfanityIsActive(false);
+        console.log('profanity filter not active')
+      };
+      if(filter === "sexy"){
+        setSexyIsActive(false);
+        console.log('sexy filter not active')
+      };
+      if(filter === "racist"){
+        setRacistIsActive(false);
+        console.log('racist filter not active')
+      };
+    }
+
+
+    // const fetchFilteredPlaylist = (playlist_id, profanityIsActive) => {
+
+    // }
+
     const logoutUser = (email) => {
       if (email) {
         fetch(`/api?do=logout&email=${encodeURIComponent(email)}`)
@@ -81,7 +123,7 @@ function App() {
         <SpotifyLogin />
         <ShowPlaylists />
         <ShowSongs />
-        <Logout />
+        <Logout logoutUser={logoutUser} />
         {access_token && deviceId ? 
               
               <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />
