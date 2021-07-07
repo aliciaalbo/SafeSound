@@ -53,7 +53,6 @@ def parse_api():
         # art = []
         # title = []
         # description = []
-        # All references working/correct, need to noodle on data structure a bit more
         for i, item in enumerate(res['playlists']['items']):
             data = {}
             data['id'] = item['id']
@@ -63,19 +62,32 @@ def parse_api():
             playlist_data.append(data)
         print(playlist_data)
         return jsonify(playlist_data)
-   
+    elif do == "getTracks":
+        pid = request.args.get('pid')
+        res = crud.search_for_tracks(pid)
+        track_data = []
+        for track in response['items']:
+            data = {}
+            try:
+                data['id'] = track['track']['id']
+                data['title'] = track['track']['name']
+                data['art'] = track['track']['album']['images'][0]['url'])
+                artist_name = ''
+                for artist in track['track']['artists']:
+                    if artist_name == '':
+                        artist_name = artist['name']   
+                    else:
+                        artist_name = artist_name + ', ' + artist['name']
+                data['artist'] = artist_name
+
+            except(TypeError):
+                continue    
+        print(track_data)
+        return jsonify(track_data)
 
 
 
-# def search_for_playlists(term):
-#     """searches Spotify for playlists, returns playlists"""
-#     playlists = spotify.search(term, type='playlist')
-#     playlist_data = {}
 
-#     for item in playlists:
-#         playlist_data[item]['id'] = [item]['name']
-
-#     return print(playlist_data)
 
 # return redirect('/')
 

@@ -26,7 +26,7 @@ function App() {
     const [profanityIsActive, setProfanityIsActive] = useStickyState(false);
     const [sexyIsActive, setSexyIsActive] = useStickyState(false);
     const [racistIsActive, setRacistIsActive] = useStickyState(false);
-    
+    const [tracks, setTracks] = useStickyState("", "tracks")
 
 
     // player state items we don't want to persist
@@ -70,6 +70,14 @@ function App() {
       .then((res) => {
               console.log(res)  
               setPlaylists(res)})
+    }
+
+    const fetchTracks = (pid) => {
+      fetch(`/api?do=getTracks&pid=${encodeURIComponent(pid)}`)
+      .then((res) => res.json())
+      .then((res) => {
+              console.log(res)  
+              setTracks(res)})
     }
 
     const activateFilter = (filter) => {
@@ -126,8 +134,8 @@ function App() {
         <div>SAFESOUND, DANGERBALLS</div>
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
-        <ShowPlaylists playlists={playlists} />
-        <ShowSongs />
+        <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} />
+        <ShowSongs tracks={tracks} />
         <Logout logoutUser={logoutUser} />
         {profanityIsActive ? <ProfanityDark deactivateFilter={deactivateFilter}  /> : <ProfanityLight activateFilter={activateFilter}  />}
         {sexyIsActive ? <SexyDark deactivateFilter={deactivateFilter}  /> : <SexyLight activateFilter={activateFilter}  />}
