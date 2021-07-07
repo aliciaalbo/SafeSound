@@ -13,6 +13,8 @@ import ProfanityLight from './profanityLight';
 import ProfanityDark from './profanityDark';
 import SexyLight from './sexyLight';
 import SexyDark from './sexyDark';
+import RacistLight from './racistLight';
+import RacistDark from './racistDark';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -124,13 +126,12 @@ function App() {
         <div>SAFESOUND, DANGERBALLS</div>
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
-        <ShowPlaylists />
+        <ShowPlaylists playlists={playlists} />
         <ShowSongs />
         <Logout logoutUser={logoutUser} />
-        <ProfanityLight activateFilter={activateFilter}  />
-        <ProfanityDark deactivateFilter={deactivateFilter}  />
-        <SexyLight activateFilter={activateFilter}  />
-        <SexyDark deactivateFilter={deactivateFilter}  />
+        {profanityIsActive ? <ProfanityDark deactivateFilter={deactivateFilter}  /> : <ProfanityLight activateFilter={activateFilter}  />}
+        {sexyIsActive ? <SexyDark deactivateFilter={deactivateFilter}  /> : <SexyLight activateFilter={activateFilter}  />}
+        {racistIsActive ? <RacistDark deactivateFilter={deactivateFilter}  /> : <RacistLight activateFilter={activateFilter}  />}
         {access_token && deviceId ? 
               
               <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />

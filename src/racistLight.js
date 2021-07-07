@@ -1,17 +1,16 @@
 import React from 'react';
 
-function SexyDark(props){
+function RacistLight(props){
     const handleClick = (e) => {
         e.preventDefault();
-        props.deactivateFilter('sexy');
-        console.log('toggled');
+        props.activateFilter('racist');
         
     };
     return (
         <button className="btn-actions justify-content-center flex-nowrap" onClick={e => { handleClick(e) }}>
-        <span>sexy on</span></button>
+        <span>racist off</span></button>
     )
 }
 
 
-export default SexyDark;
+export default RacistLight;

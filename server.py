@@ -46,7 +46,7 @@ def parse_api():
             return crud.logout(email)
         return "Could not logout, no access token"
     elif do == "getPlaylists":
-        search_term = request.args.get(term)
+        search_term = request.args.get('term')
         res = crud.search_for_playlists(search_term)
         playlist_data = []
         # ids = []
@@ -61,8 +61,8 @@ def parse_api():
             data['name'] = item['name']
             data['art'] = item['images'][0]['url']
             playlist_data.append(data)
-
-        return playlist_data
+        print(playlist_data)
+        return jsonify(playlist_data)
    
 
 

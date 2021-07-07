@@ -4,6 +4,7 @@ function SexyLight(props){
     const handleClick = (e) => {
         e.preventDefault();
         props.activateFilter('sexy');
+        console.log('toggled');
         
     };
     return (
