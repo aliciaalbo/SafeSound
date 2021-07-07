@@ -9,6 +9,10 @@ import ShowPlaylists from './playlists';
 import ShowSongs from './songs';
 import Logout from "./logout";
 import Filters from "./filters";
+import ProfanityLight from './profanityLight';
+import ProfanityDark from './profanityDark';
+import SexyLight from './sexyLight';
+import SexyDark from './sexyDark';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -96,7 +100,6 @@ function App() {
       };
     }
 
-
     // const fetchFilteredPlaylist = (playlist_id, profanityIsActive) => {
 
     // }
@@ -124,6 +127,10 @@ function App() {
         <ShowPlaylists />
         <ShowSongs />
         <Logout logoutUser={logoutUser} />
+        <ProfanityLight activateFilter={activateFilter}  />
+        <ProfanityDark deactivateFilter={deactivateFilter}  />
+        <SexyLight activateFilter={activateFilter}  />
+        <SexyDark deactivateFilter={deactivateFilter}  />
         {access_token && deviceId ? 
               
               <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />

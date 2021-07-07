@@ -6,8 +6,9 @@ function Filters(props){
         props.applyFilter(props.filter);
     };
     return (
-        <button className="btn-actions justify-content-center flex-nowrap" onClick={e => { handleClick(e) }}>
-        <span>profanity</span></button>
+        <div>
+            <profanity />
+        </div>
     )
 }
 
