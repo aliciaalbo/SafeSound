@@ -6,7 +6,7 @@ import SpotPlayer from "./spotplayer";
 import PlaylistSearch from "./playlistSearch"
 import SpotifyLogin from './spotifylogin';
 import ShowPlaylists from './playlists';
-import ShowSongs from './songs';
+import Tracks from './tracks';
 import Logout from "./logout";
 import Filters from "./filters";
 import ProfanityLight from './profanityLight';
@@ -15,6 +15,7 @@ import SexyLight from './sexyLight';
 import SexyDark from './sexyDark';
 import RacistLight from './racistLight';
 import RacistDark from './racistDark';
+import ShowTracks from './showTracks';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -26,7 +27,7 @@ function App() {
     const [profanityIsActive, setProfanityIsActive] = useStickyState(false);
     const [sexyIsActive, setSexyIsActive] = useStickyState(false);
     const [racistIsActive, setRacistIsActive] = useStickyState(false);
-    const [tracks, setTracks] = useStickyState("", "tracks")
+    const [tracks, setTracks] = useStickyState([], "tracks")
 
 
     // player state items we don't want to persist
@@ -73,6 +74,7 @@ function App() {
     }
 
     const fetchTracks = (pid) => {
+      setPid(pid);
       fetch(`/api?do=getTracks&pid=${encodeURIComponent(pid)}`)
       .then((res) => res.json())
       .then((res) => {
@@ -135,7 +137,8 @@ function App() {
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
         <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} />
-        <ShowSongs tracks={tracks} />
+        <ShowTracks pid={pid} fetchTracks={fetchTracks} />
+        <Tracks tracks={tracks} />
         <Logout logoutUser={logoutUser} />
         {profanityIsActive ? <ProfanityDark deactivateFilter={deactivateFilter}  /> : <ProfanityLight activateFilter={activateFilter}  />}
         {sexyIsActive ? <SexyDark deactivateFilter={deactivateFilter}  /> : <SexyLight activateFilter={activateFilter}  />}

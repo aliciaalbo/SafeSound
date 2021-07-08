@@ -49,10 +49,6 @@ def parse_api():
         search_term = request.args.get('term')
         res = crud.search_for_playlists(search_term)
         playlist_data = []
-        # ids = []
-        # art = []
-        # title = []
-        # description = []
         for i, item in enumerate(res['playlists']['items']):
             data = {}
             data['id'] = item['id']
@@ -84,7 +80,8 @@ def parse_api():
                 continue    
         print(track_data)
         return jsonify(track_data)
-
+    # elif do == "filterPlaylist":
+    #     filters
 
 
 
