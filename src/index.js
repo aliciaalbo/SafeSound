@@ -28,6 +28,7 @@ function App() {
     const [sexyIsActive, setSexyIsActive] = useStickyState(false);
     const [racistIsActive, setRacistIsActive] = useStickyState(false);
     const [tracks, setTracks] = useStickyState([], "tracks")
+    const [pid, setPid] = useStickyState("", "pid");
 
 
     // player state items we don't want to persist
@@ -36,7 +37,7 @@ function App() {
     const [isPaused, setIsPaused] = useState(true);
     const [curTrackId, setCurTrackId] = useState("");
     const [playbackToggle, setPlaybackToggle] = useState('no');
-    const [pid, setPid] = useState("");
+    // const [pid, setPid] = useState("");
     const [isError, setIsError] = useState(false);
 
     // instantiate the Spotify Player passes props in object to webplayer.js
@@ -136,9 +137,9 @@ function App() {
         <div>SAFESOUND, DANGERBALLS</div>
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
-        <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} />
+        <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} />
         <ShowTracks pid={pid} fetchTracks={fetchTracks} />
-        <Tracks tracks={tracks} />
+        {tracks.length ? <Tracks tracks={tracks} /> : null }
         <Logout logoutUser={logoutUser} />
         {profanityIsActive ? <ProfanityDark deactivateFilter={deactivateFilter}  /> : <ProfanityLight activateFilter={activateFilter}  />}
         {sexyIsActive ? <SexyDark deactivateFilter={deactivateFilter}  /> : <SexyLight activateFilter={activateFilter}  />}

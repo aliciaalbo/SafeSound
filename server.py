@@ -56,18 +56,20 @@ def parse_api():
             data['name'] = item['name']
             data['art'] = item['images'][0]['url']
             playlist_data.append(data)
-        print(playlist_data)
+        # print(playlist_data)
         return jsonify(playlist_data)
     elif do == "getTracks":
         pid = request.args.get('pid')
+        # print(pid)
         res = crud.search_for_tracks(pid)
         track_data = []
-        for track in response['items']:
+        print(res)
+        for i, track in enumerate(res['items']):
             data = {}
             try:
                 data['id'] = track['track']['id']
                 data['title'] = track['track']['name']
-                data['art'] = track['track']['album']['images'][0]['url'])
+                data['art'] = track['track']['album']['images'][0]['url']
                 artist_name = ''
                 for artist in track['track']['artists']:
                     if artist_name == '':
@@ -75,9 +77,9 @@ def parse_api():
                     else:
                         artist_name = artist_name + ', ' + artist['name']
                 data['artist'] = artist_name
-
             except(TypeError):
-                continue    
+                continue  
+            track_data.append(data)  
         print(track_data)
         return jsonify(track_data)
     # elif do == "filterPlaylist":

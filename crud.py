@@ -194,10 +194,13 @@ def search_for_playlists(search_term):
 
 def search_for_tracks(pid):
     """get song titles and id's from Spotify playlist"""
-    response = spotify.playlist_items(pid,
-                                    fields='items.track.id,items.track.name,items.track.artists,items.track.album,total',
-                                    additional_types=['track'])
-    print(response)
+    response = spotify.playlist_items(pid
+                                    # fields='items.track.id,items.track.name,items.track.artists,items.track.album,total',
+                                    # additional_types=['track'])
+                                    )
+    # for track in response["items"]:
+    #     print(track['track']['id'])
+    # return True
     return response
 
 # refactor to get title, atrist, art, track id  
