@@ -16,6 +16,7 @@ import SexyDark from './sexyDark';
 import RacistLight from './racistLight';
 import RacistDark from './racistDark';
 import ShowTracks from './showTracks';
+import ApplyFilters from './applyFilters';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -66,6 +67,7 @@ function App() {
 
     const fetchPlaylists = (playlistSearchTerm) => {
       setPlaylistSearchTerm(playlistSearchTerm);
+      setTracks("");
 
       fetch(`/api?do=getPlaylists&term=${encodeURIComponent(playlistSearchTerm)}`)
       .then((res) => res.json())
@@ -81,7 +83,10 @@ function App() {
       .then((res) => {
               console.log(res)  
               setTracks(res)})
+      setPlaylists("");
     }
+
+    const applyFilters = ()
 
     const activateFilter = (filter) => {
       if(filter === "profanity"){
@@ -137,14 +142,15 @@ function App() {
         <div>SAFESOUND, DANGERBALLS</div>
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
-        <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} />
+        {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
         <ShowTracks pid={pid} fetchTracks={fetchTracks} />
         {tracks.length ? <Tracks tracks={tracks} /> : null }
+        {tracks.length ? <ApplyFilters tracks={tracks} /> : null }
         <Logout logoutUser={logoutUser} />
         {profanityIsActive ? <ProfanityDark deactivateFilter={deactivateFilter}  /> : <ProfanityLight activateFilter={activateFilter}  />}
         {sexyIsActive ? <SexyDark deactivateFilter={deactivateFilter}  /> : <SexyLight activateFilter={activateFilter}  />}
         {racistIsActive ? <RacistDark deactivateFilter={deactivateFilter}  /> : <RacistLight activateFilter={activateFilter}  />}
-        {access_token && deviceId ? 
+        {access_token && deviceId && tracks.length ? 
               
               <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />
               

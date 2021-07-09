@@ -9,7 +9,7 @@ function Tracks(props) {
         return (
       <div className={rowclasses} id={track.id} idx={index} key={track.id}>
         <div className="playlist-number col-auto my-auto">{songNum}</div>
-        <div className="playlist-album col-auto my-auto"><img src={track.art} /></div>
+        <div className="playlist-album col-auto my-auto"><img src={track.art} width="100" /></div>
         <div className="playlist-trackinfo col my-auto">
           <div className="playlist-title">{track.title}</div>
           <div className="playlist-artist">{track.artist}</div>

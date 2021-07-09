@@ -24,7 +24,7 @@ function ShowPlaylists(props) {
         return (
       <div className={rowclasses} id={playlist.id} idx={index} key={playlist.id} onClick={e => { handleClick(e, playlist.id) }} onDoubleClick={e => { handleDoubleClick(e) }}>
         <div className="playlist-number col-auto my-auto">{playlistNum}</div>
-        <div className="playlist-album col-auto my-auto"><img src={playlist.art} onClick={e => { handleClick(e) }} /></div>
+        <div className="playlist-album col-auto my-auto"><img src={playlist.art} width="100" /></div>
         <div className="playlist-trackinfo col my-auto">
           <div className="playlist-title">{playlist.name}</div>
           <div className="playlist-artist">{playlist.description}</div>
