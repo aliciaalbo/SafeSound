@@ -82,8 +82,12 @@ def parse_api():
             track_data.append(data)  
         print(track_data)
         return jsonify(track_data)
-    # elif do == "filterPlaylist":
-    #     filters
+    elif do == "filterTracks":
+        filters_ids = []
+        active_filters = request.args.get(activeFilters)
+        for filter in active_filters:
+            crud.get_filter_by_id(filter)
+
 
 
 

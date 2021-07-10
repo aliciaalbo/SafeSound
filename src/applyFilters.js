@@ -3,7 +3,7 @@ import React from 'react';
 function ApplyFilters(props){
     const handleClick = (e) => {
         e.preventDefault();
-        props.fetchFilteredTacks(props.tracks);
+        props.applyFilters(props.tracks);
         
     };
     return (

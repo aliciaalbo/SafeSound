@@ -108,21 +108,6 @@ def get_spotify_credentials(code):
     sp_oauth = oauth2.SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
     #sp_oauth = oauth2.SpotifyPKCE(cid,SPOTIPY_REDIRECT_URI,scope=SCOPE,cache_handler="CacheDB")
 
-def create_filter(user_id, filter_name):
-    """creates empty filter"""
-    filter = Filter(
-        user_id = user_id,
-        filter_name = filter_name
-    )
-
-    db.session.add(filter)
-    db.session.commit()
-
-# for custom filters
-# def add_filter_term(filter_id, term):
-#     """adds word or phrase to filter criteria"""
-
-
 
 def find_song_lyrics(title):
     """searches genius for single title and returns lyrics as string"""
@@ -151,6 +136,19 @@ def save_lyrics(unique_lyrics, track_id, artist, album_art):
     db.session.add(cached_lyrics)
     db.session.commit()
 
+def create_filter(user_id, filter_name):
+    """creates empty filter"""
+    filter = Filter(
+        user_id = user_id,
+        filter_name = filter_name
+    )
+
+    db.session.add(filter)
+    db.session.commit()
+
+def get_filter_words_by_id(filter_id):
+    """gets word list associated with each filter id"""
+    word_list = de.session.query
 
 def apply_filter(filter_id, lyrics):
     """checks for exact match of excluded terms, returns boolean"""
@@ -177,7 +175,7 @@ def get_cached_results(track_id, filter_id):
     """returns cached pass/fail status of filter applied to track"""
     return CachedResult.query(CachedResult.pass_status).filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id)
 
-def lyrics_cache_check(track_id):
+def lyrics_cache_check_by_id(track_id):
     """checks if lyrics are saved"""
     if CachedLyrics.query.filter(CachedLyrics.track_id == track_id).first():
         return True

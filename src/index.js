@@ -30,6 +30,8 @@ function App() {
     const [racistIsActive, setRacistIsActive] = useStickyState(false);
     const [tracks, setTracks] = useStickyState([], "tracks")
     const [pid, setPid] = useStickyState("", "pid");
+    const [failingTracks, setFailingTracks] = useState([]);
+    const [passingTracks, setPassingTracks] = useState([])
 
 
     // player state items we don't want to persist
@@ -82,11 +84,28 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
               console.log(res)  
-              setTracks(res)})
+              setTracks(res)
+            })
       setPlaylists("");
     }
 
-    const applyFilters = ()
+    const applyFilters = () => {
+      let activeFilters = [];
+      if(racistIsActive == true){
+        activeFilters.push('racist')
+      };
+      if(profanityIsActive == true){
+        activeFilters.push('profanity')
+      };
+      if(sexyIsActive == true){
+        activeFilters.push('sexy')
+      };
+      fetch(`/api?do=filterTracks&activeFilters={activeFilters}`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res)
+      })
+    }
 
     const activateFilter = (filter) => {
       if(filter === "profanity"){
@@ -145,7 +164,7 @@ function App() {
         {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
         <ShowTracks pid={pid} fetchTracks={fetchTracks} />
         {tracks.length ? <Tracks tracks={tracks} /> : null }
-        {tracks.length ? <ApplyFilters tracks={tracks} /> : null }
+        {tracks.length ? <ApplyFilters tracks={tracks} applyFilters={applyFilters}/> : null }
         <Logout logoutUser={logoutUser} />
         {profanityIsActive ? <ProfanityDark deactivateFilter={deactivateFilter}  /> : <ProfanityLight activateFilter={activateFilter}  />}
         {sexyIsActive ? <SexyDark deactivateFilter={deactivateFilter}  /> : <SexyLight activateFilter={activateFilter}  />}
