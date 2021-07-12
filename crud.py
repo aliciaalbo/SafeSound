@@ -190,6 +190,11 @@ def search_for_playlists(search_term):
     response = spotify.search(search_term, type="playlist")
     return response
 
+def search_for_featured_playlists():
+    """returns top 5 playlists featured by spotify"""
+    response = spotify.featured_playlists(limit=5)
+    return response
+
 def search_for_tracks(pid):
     """get song titles and id's from Spotify playlist"""
     response = spotify.playlist_items(pid

@@ -58,6 +58,17 @@ def parse_api():
             playlist_data.append(data)
         # print(playlist_data)
         return jsonify(playlist_data)
+    elif do == "getFeaturedPlaylists":
+        res = crud.search_for_featured_playlists()
+        featured_playlists = []
+        for playlist in res['playlists']['items']:
+            data = {}
+            data['id'] = playlist['id']
+            data['description'] = playlist['description']
+            data['name'] = playlist['name']
+            data['art'] = playlist['images'][0]['url']
+            featured_playlists.append(data)
+        return jsonify(featured_playlists)
     elif do == "getTracks":
         pid = request.args.get('pid')
         # print(pid)

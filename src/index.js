@@ -1,4 +1,4 @@
-import React, {useState} from 'react';
+import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import useStickyState from "./useStickyState";
 import WebPlayer from "./webplayer";
@@ -17,6 +17,7 @@ import RacistLight from './racistLight';
 import RacistDark from './racistDark';
 import ShowTracks from './showTracks';
 import ApplyFilters from './applyFilters';
+import ShowFeaturedPlaylists from './spotifyFeaturedPlaylists';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -32,6 +33,8 @@ function App() {
     const [pid, setPid] = useStickyState("", "pid");
     const [failingTracks, setFailingTracks] = useState([]);
     const [passingTracks, setPassingTracks] = useState([])
+    // const [featuredPlaylists, setFeaturedPlaylists] = useState("")
+    // const [isFeaturedPlaylistsSet, setIsFeaturedPlaylistsSet] = useStickyState(false)
 
 
     // player state items we don't want to persist
@@ -42,6 +45,8 @@ function App() {
     const [playbackToggle, setPlaybackToggle] = useState('no');
     // const [pid, setPid] = useState("");
     const [isError, setIsError] = useState(false);
+
+
 
     // instantiate the Spotify Player passes props in object to webplayer.js
     //  isPaused: isPaused, curTrackId: curTrackId, 
@@ -91,13 +96,13 @@ function App() {
 
     const applyFilters = () => {
       let activeFilters = [];
-      if(racistIsActive == true){
+      if(racistIsActive === true){
         activeFilters.push('racist')
       };
-      if(profanityIsActive == true){
+      if(profanityIsActive === true){
         activeFilters.push('profanity')
       };
-      if(sexyIsActive == true){
+      if(sexyIsActive === true){
         activeFilters.push('sexy')
       };
       fetch(`/api?do=filterTracks&activeFilters={activeFilters}`)
@@ -161,6 +166,7 @@ function App() {
         <div>SAFESOUND, DANGERBALLS</div>
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
+        <ShowFeaturedPlaylists setPid={setPid}/>
         {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
         <ShowTracks pid={pid} fetchTracks={fetchTracks} />
         {tracks.length ? <Tracks tracks={tracks} /> : null }
