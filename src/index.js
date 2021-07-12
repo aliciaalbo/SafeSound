@@ -18,6 +18,7 @@ import RacistDark from './racistDark';
 import ShowTracks from './showTracks';
 import ApplyFilters from './applyFilters';
 import ShowFeaturedPlaylists from './spotifyFeaturedPlaylists';
+import AllowNoLyrics from './allowNoLyrics'
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -33,8 +34,7 @@ function App() {
     const [pid, setPid] = useStickyState("", "pid");
     const [failingTracks, setFailingTracks] = useState([]);
     const [passingTracks, setPassingTracks] = useState([])
-    // const [featuredPlaylists, setFeaturedPlaylists] = useState("")
-    // const [isFeaturedPlaylistsSet, setIsFeaturedPlaylistsSet] = useStickyState(false)
+    const [allowNoLyrics, setAllowNoLyrics] = useStickyState(false)
 
 
     // player state items we don't want to persist
@@ -105,7 +105,7 @@ function App() {
       if(sexyIsActive === true){
         activeFilters.push('sexy')
       };
-      fetch(`/api?do=filterTracks&activeFilters={activeFilters}`)
+      fetch(`/api?do=filterTracks&activeFilters={activeFilters}&allowNoLyrics={allowNoLyrics}`)
       .then((res) => res.json())
       .then((res) => {
         console.log(res)
@@ -167,6 +167,7 @@ function App() {
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
         <ShowFeaturedPlaylists setPid={setPid}/>
+        <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
         {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
         <ShowTracks pid={pid} fetchTracks={fetchTracks} />
         {tracks.length ? <Tracks tracks={tracks} /> : null }

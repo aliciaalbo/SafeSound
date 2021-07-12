@@ -97,7 +97,8 @@ def parse_api():
         filters_ids = []
         active_filters = request.args.get(activeFilters)
         for filter in active_filters:
-            crud.get_filter_by_id(filter)
+            id = crud.get_filter_by_id(filter)
+            filters_ids.append(id)
 
 
 
