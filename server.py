@@ -1,8 +1,10 @@
+from crud import filter_cache_check
 from flask import (Flask, render_template, request, flash, session, redirect, jsonify)
 from jinja2 import StrictUndefined
 from model import connect_to_db
 import crud
 # import model
+import json
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
@@ -105,12 +107,42 @@ def parse_api():
         print(track_data)
         return jsonify(track_data)
     elif do == "filterTracks":
-        filters_ids = []
-        active_filters = request.args.get(activeFilters)
-        for filter in active_filters:
-            id = crud.get_filter_by_id(filter)
-            filters_ids.append(id)
+        # filters_ids = []
+        # active_filters = request.args.get(activeFilters)
+        # for filter in active_filters:
+        #     id = crud.get_filter_by_id(filter)
+        #     filters_ids.append(id)
+        # check if filter id + song id in db
+        # if no, check if song id has cached lyrics
+        # if yes, apply filter
+        # if no, query genius and get lyrics
+        allow_no_lyrics = request.args.get('allowNoLyrics')
+        all_tracks = json.loads(request.args.get('tracks'))
+        passing_tracks = []
+        for track in all_tracks:
+            if filter_cache_check(track.id, 1):
+                print("match found")
+                if crud.get_cached_results(track.id, 1):
+                    passing_tracks.append(track)
+                    print("appended")
+            elif crud.lyrics_cache_cahce_check_by_id(track.id):
+                lyrics = crud.get_lyrics_by_track_id(track.id)
+                lyrics_words = lyrics.split(" ")
+                lyrics = set(lyrics_words)
+                print("lyrics match found")
+                if crud.apply_filter(lyrics, 1):
+                    passing_tracks.append(track)
+            else:
+                unique_lyrics = crud.find_song_lyrics(track.title)
+                crud.save_lyrics(unique_lyrics, track.id, track.title, track.artist, track.art)
+                lyrics_words = unique_lyrics.split(" ")
+                lyrics = set(lyrics_words)
+                if crud.apply_filter(lyrics, 1):
+                    passing_tracks.append(track)
+        return passing_tracks
 
+
+        # pass        
 
 
 

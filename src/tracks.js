@@ -3,6 +3,7 @@ import React from 'react';
 function Tracks(props) {
   return (
     <div className="tracks container">
+      TRACKS
       {props.tracks.map((track, index) => {
         const rowclasses = track.id;
         const songNum = index+1;

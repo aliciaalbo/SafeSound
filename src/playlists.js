@@ -18,6 +18,7 @@ function ShowPlaylists(props) {
 
     return(
     <div className="playlist container">
+      SEARCh PLAYLISTS
       {props.playlists.map((playlist, index) => {
         const rowclasses = playlist.id;
         const playlistNum = index+1;

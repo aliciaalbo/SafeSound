@@ -126,18 +126,44 @@ def create_lyrics(lyrics):
         unique_lyrics.add(word)
     return "\n".join(list(unique_lyrics))
 
-def save_lyrics(unique_lyrics, track_id, artist, album_art):
+def save_lyrics(unique_lyrics, track_id, title, artist, album_art):
     """saves unique words in lyrics as string separated by line breaks with track info"""
     cached_lyrics = CachedLyrics(
                     unique_lyrics = unique_lyrics,
                     track_id = track_id,
+                    title = title,
                     artist = artist,
                     album_art = album_art
     )
     db.session.add(cached_lyrics)
     db.session.commit()
 
-def create_filter(user_id, filter_name):
+
+
+def build_filter(file):
+    """opens and parses file, removes phrases, returns single words as string separated by line breaks"""
+    file_string = open(file).read()
+    words = file_string.split(",")
+    single_words = []
+    for word in words:
+        check_word = word.strip()
+        if " " not in check_word:
+            single_words.append(check_word)
+    single_word_string = "/n".join(single_words)
+    return single_word_string
+
+def create_default_filter(word_list, filter_name):
+    """accepts list of words and creates filter"""
+    # " ".join(words)
+    filter = Filter(
+        word_list = word_list,
+        filter_name = filter_name
+    )
+
+    db.session.add(filter)
+    db.session.commit()
+
+def create_user_filter(user_id, filter_name):
     """creates empty filter"""
     filter = Filter(
         user_id = user_id,

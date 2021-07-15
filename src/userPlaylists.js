@@ -18,6 +18,7 @@ function UserPlaylists(props) {
 
     return(
     <div className="playlist container">
+      MY PLAYLISTS
       {props.userPlaylists.map((playlist, index) => {
         const rowclasses = playlist.id;
         const playlistNum = index+1;

@@ -47,6 +47,7 @@ function ShowFeaturedPlaylists(props){
 
   return(
     <div>
+      FEATURED PLAYLISTS
       {featuredPlaylists !== [] ? 
       featuredPlaylists.map((playlist, index) => {
       const rowclasses = playlist.id;
