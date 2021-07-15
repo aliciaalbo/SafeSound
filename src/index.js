@@ -19,6 +19,8 @@ import ShowTracks from './showTracks';
 import ApplyFilters from './applyFilters';
 import ShowFeaturedPlaylists from './spotifyFeaturedPlaylists';
 import AllowNoLyrics from './allowNoLyrics'
+import ShowUserPlaylists from './showUserPlaylists';
+import UserPlaylists from './userPlaylists';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -35,6 +37,7 @@ function App() {
     const [failingTracks, setFailingTracks] = useState([]);
     const [passingTracks, setPassingTracks] = useState([])
     const [allowNoLyrics, setAllowNoLyrics] = useStickyState(false)
+    const [userPlaylists, setUserPlaylists] = useStickyState("", "userPlaylists")
 
 
     // player state items we don't want to persist
@@ -80,7 +83,17 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
               console.log(res)  
-              setPlaylists(res)})
+              setPlaylists(res)
+          })
+    }
+
+    const fetchUserPlaylists = () => {
+      fetch(`/api?do=getUserPlaylists`)
+      .then((res) => res.json())
+      .then((res) => {
+        console.log(res)
+        setUserPlaylists(res)
+      })
     }
 
     const fetchTracks = (pid) => {
@@ -167,10 +180,12 @@ function App() {
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
         <SpotifyLogin />
         <ShowFeaturedPlaylists setPid={setPid}/>
+        <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists} setPid={setPid} />
+        {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} /> : null}
         <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
         {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
         <ShowTracks pid={pid} fetchTracks={fetchTracks} />
-        {tracks.length ? <Tracks tracks={tracks} /> : null }
+        {pid && tracks.length ? <Tracks tracks={tracks} /> : null }
         {tracks.length ? <ApplyFilters tracks={tracks} applyFilters={applyFilters}/> : null }
         <Logout logoutUser={logoutUser} />
         {profanityIsActive ? <ProfanityDark deactivateFilter={deactivateFilter}  /> : <ProfanityLight activateFilter={activateFilter}  />}

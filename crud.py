@@ -4,6 +4,7 @@ from model import db, connect_to_db, User, Filter
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 
+
 import os
 import secrets
 import lyricsgenius
@@ -193,6 +194,21 @@ def search_for_playlists(search_term):
 def search_for_featured_playlists():
     """returns top 5 playlists featured by spotify"""
     response = spotify.featured_playlists(limit=5)
+    return response
+
+def search_for_user_playlists():
+    """returns user's saved playlists (50)"""
+    response = spotify.current_user_playlists(limit=3)
+    user_playlists = []
+    for playlist in response['items']:
+        data = {}
+        data['id'] = playlist['id']
+        data['description'] = playlist['description']
+        data['name'] = playlist['name']
+        data['art'] = playlist['images'][0]['url']
+        user_playlists.append(data)
+    print(user_playlists)
+    # return True
     return response
 
 def search_for_tracks(pid):
