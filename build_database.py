@@ -5,7 +5,7 @@ import crud
 
 
 model.connect_to_db(server.app)
-# model.db.create_all()
+model.db.create_all()
 
 
 youtube_list = crud.build_filter("youtube_blacklist.txt")

@@ -1,13 +1,10 @@
-
-
-from model import db, connect_to_db, User, Filter
+from model import db, connect_to_db, User, Filter, CachedResult, CachedLyrics
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
-
-
 import os
 import secrets
 import lyricsgenius
+import re
 
 cid = secrets.cid
 secret = secrets.secret
@@ -113,8 +110,8 @@ def get_spotify_credentials(code):
 def find_song_lyrics(title):
     """searches genius for single title and returns lyrics as string"""
     song = genius.search_song(title= title, artist='', song_id=None, get_full_info=True)
-    lyrics = song.lyrics
-    return lyrics
+    if song is not None:
+        return song.lyrics
 
 def find_playlist_lyrics(playlist_id):
     """searches genius for batch of songs, returns dictionary(? tbd)"""
@@ -129,7 +126,7 @@ def create_lyrics(lyrics):
 def save_lyrics(unique_lyrics, track_id, title, artist, album_art):
     """saves unique words in lyrics as string separated by line breaks with track info"""
     cached_lyrics = CachedLyrics(
-                    unique_lyrics = unique_lyrics,
+                    lyrics = unique_lyrics,
                     track_id = track_id,
                     title = title,
                     artist = artist,
@@ -138,7 +135,17 @@ def save_lyrics(unique_lyrics, track_id, title, artist, album_art):
     db.session.add(cached_lyrics)
     db.session.commit()
 
-
+def parse_lyrics(lyrics: str):
+    """ replace line breaks and periods with spaces """
+    lyrics = lyrics.replace('\n', ' ')
+    lyrics = lyrics.replace('\r', ' ')
+    lyrics = lyrics.replace('.', ' ')
+    """ removes any other symbol that is not a letter, number or space """
+    lyrics = re.sub(r'[^a-zA-Z0-9\s]', '', lyrics)
+    """ convert any string of spaces into a single space """
+    lyrics = re.sub(r'\s+', " ", lyrics)
+    """ split to words, return the unique word set """
+    return set(lyrics.split(" "))
 
 def build_filter(file):
     """opens and parses file, removes phrases, returns single words as string separated by line breaks"""
@@ -149,7 +156,7 @@ def build_filter(file):
         check_word = word.strip()
         if " " not in check_word:
             single_words.append(check_word)
-    single_word_string = "/n".join(single_words)
+    single_word_string = "\n".join(single_words)
     return single_word_string
 
 def create_default_filter(word_list, filter_name):
@@ -177,12 +184,11 @@ def get_filter_words_by_id(filter_id):
     """gets word list associated with each filter id"""
     word_list = de.session.query
 
-def apply_filter(filter_id, lyrics):
+def apply_filter(lyricsset: set, filter_id: int):
     """checks for exact match of excluded terms, returns boolean"""
-    words = "/n".split(lyrics)
-    check_words = db.session.query(Filter.word_list).filter(Filter.filter_id).all()
+    check_words = db.session.query(Filter.word_list).filter(Filter.filter_id == filter_id).all()
     for word in check_words:
-        if word in words:
+        if word in lyricsset:
             return False
     return True
 
@@ -209,8 +215,11 @@ def lyrics_cache_check_by_id(track_id):
     return False
 
 def get_lyrics_by_track_id(track_id):
-    """retrieves cahched_lyrics from db"""
-    return CachedLyrics.query(CachedLyrics.lyrics).filter(CachedLyrics.track_id == track_id).first()
+    """retrieves cached_lyrics from db"""
+    response = db.session.query(CachedLyrics.lyrics).filter(CachedLyrics.track_id == track_id).first()
+    if response is not None:
+        return response['lyrics']
+    #return CachedLyrics.query(CachedLyrics.lyrics).filter(CachedLyrics.track_id == track_id).first()
 
 def search_for_playlists(search_term):
     """searches Spotify for playlists and returns top 10 playlist objects"""

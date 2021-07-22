@@ -31,7 +31,7 @@ def show_homepage():
 
     return render_template('homepage.html')
 
-@app.route('/api')
+@app.route('/api', methods=['GET', 'POST'])
 def parse_api():
     """catches and parses data from external api call and runs appropriate functions"""
     do = request.args.get('do')
@@ -87,7 +87,7 @@ def parse_api():
         # print(pid)
         res = crud.search_for_tracks(pid)
         track_data = []
-        print(res)
+        #print(res)
         for i, track in enumerate(res['items']):
             data = {}
             try:
@@ -104,7 +104,7 @@ def parse_api():
             except(TypeError):
                 continue  
             track_data.append(data)  
-        print(track_data)
+        #print(track_data)
         return jsonify(track_data)
     elif do == "filterTracks":
         # filters_ids = []
@@ -116,30 +116,37 @@ def parse_api():
         # if no, check if song id has cached lyrics
         # if yes, apply filter
         # if no, query genius and get lyrics
-        allow_no_lyrics = request.args.get('allowNoLyrics')
-        all_tracks = json.loads(request.args.get('tracks'))
+
+        # get_json() is required for parsing JSON sent via POST instead of GET
+        # need to send via POST because too much data for a GET string
+        allow_no_lyrics = request.get_json().get('allowNoLyrics')
+        all_tracks = request.get_json().get('tracks')
+        #print(tracks)
+        #all_tracks = json.loads(tracks)
+#        return(jsonify(all_tracks))
         passing_tracks = []
         for track in all_tracks:
-            if filter_cache_check(track.id, 1):
+            # flush=True is a cool trick to force printing to the Flask console so we can see data directly
+            #print(track, flush=True)
+            if filter_cache_check(track['id'], 1):
                 print("match found")
-                if crud.get_cached_results(track.id, 1):
+                if crud.get_cached_results(track['id'], 1):
                     passing_tracks.append(track)
                     print("appended")
-            elif crud.lyrics_cache_cahce_check_by_id(track.id):
-                lyrics = crud.get_lyrics_by_track_id(track.id)
-                lyrics_words = lyrics.split(" ")
-                lyrics = set(lyrics_words)
+            elif crud.lyrics_cache_check_by_id(track['id']):
+                lyrics = crud.get_lyrics_by_track_id(track['id'])
+                lyrics_set = crud.parse_lyrics(lyrics)
                 print("lyrics match found")
-                if crud.apply_filter(lyrics, 1):
+                if crud.apply_filter(lyrics_set, 1):
                     passing_tracks.append(track)
             else:
-                unique_lyrics = crud.find_song_lyrics(track.title)
-                crud.save_lyrics(unique_lyrics, track.id, track.title, track.artist, track.art)
-                lyrics_words = unique_lyrics.split(" ")
-                lyrics = set(lyrics_words)
-                if crud.apply_filter(lyrics, 1):
-                    passing_tracks.append(track)
-        return passing_tracks
+                unique_lyrics = crud.find_song_lyrics(track['title'])
+                if unique_lyrics is not None:
+                    crud.save_lyrics(unique_lyrics, track['id'], track['title'], track['artist'], track['art'])
+                    lyricsset = crud.parse_lyrics(unique_lyrics)
+                    if crud.apply_filter(lyricsset, 1):
+                        passing_tracks.append(track)
+        return jsonify(passing_tracks)
 
 
         # pass        

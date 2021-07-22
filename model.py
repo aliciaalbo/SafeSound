@@ -27,16 +27,16 @@ class Filter(db.Model):
 
     db.relationship(User, backref='filters')
 
-class CachedResult():
+class CachedResult(db.Model):
     """store results of filters applied to individual songs"""
     __tablename__ = "cached_results"
 
     cached_result_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     track_id = db.Column(db.String)
-    filter_id = db.Column(db.String, db.ForeignKey('filters.filter_id'))
+    filter_id = db.Column(db.Integer, db.ForeignKey('filters.filter_id'))
     pass_status = db.Column(db.Boolean)
 
-class CachedLyrics():
+class CachedLyrics(db.Model):
     """stores unique words in lyrics"""
     __tablename__ = "cached_lyrics"
 

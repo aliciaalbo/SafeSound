@@ -118,7 +118,18 @@ function App() {
       // if(sexyIsActive === true){
       //   activeFilters.push('sexy')
       // };
-      fetch(`/api?do=filterTracks&tracks={encodeURIComponent(JSON.stringify(tracks))}&allowNoLyrics={allowNoLyrics}`)
+      //       fetch(`/api?do=filterTracks&tracks=${encodeURIComponent(JSON.stringify(tracks))}&allowNoLyrics=${allowNoLyrics}`,
+      const params = {
+        tracks: tracks,
+        allowNoLyrics: allowNoLyrics
+      };
+      fetch("/api?do=filterTracks",
+        {
+          method: 'POST',
+          headers: { 'Content-Type': 'application/json' },
+          body: JSON.stringify(params)
+        }
+      )
       .then((res) => res.json())
       .then((res) => {
         console.log(res)
