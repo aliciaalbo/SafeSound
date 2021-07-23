@@ -9,12 +9,6 @@ import ShowPlaylists from './playlists';
 import Tracks from './tracks';
 import Logout from "./logout";
 import Filters from "./filters";
-// import ProfanityLight from './profanityLight';
-// import ProfanityDark from './profanityDark';
-// import SexyLight from './sexyLight';
-// import SexyDark from './sexyDark';
-// import RacistLight from './racistLight';
-// import RacistDark from './racistDark';
 import ShowTracks from './showTracks';
 import ApplyFilters from './applyFilters';
 import ShowFeaturedPlaylists from './spotifyFeaturedPlaylists';
@@ -29,9 +23,6 @@ function App() {
     const [access_token, setAccessToken] = useStickyState("", "access_token");
     const [name, setName] = useStickyState("", "name");
     const [email, setEmail] = useStickyState("", "email");
-    // const [profanityIsActive, setProfanityIsActive] = useStickyState(false);
-    // const [sexyIsActive, setSexyIsActive] = useStickyState(false);
-    // const [racistIsActive, setRacistIsActive] = useStickyState(false);
     const [tracks, setTracks] = useStickyState([], "tracks")
     const [pid, setPid] = useStickyState("", "pid");
     const [failingTracks, setFailingTracks] = useState([]);
@@ -108,17 +99,7 @@ function App() {
     }
 
     const applyFilters = () => {
-      // let activeFilters = [];
-      // if(racistIsActive === true){
-      //   activeFilters.push('racist')
-      // };
-      // if(profanityIsActive === true){
-      //   activeFilters.push('profanity')
-      // };
-      // if(sexyIsActive === true){
-      //   activeFilters.push('sexy')
-      // };
-      //       fetch(`/api?do=filterTracks&tracks=${encodeURIComponent(JSON.stringify(tracks))}&allowNoLyrics=${allowNoLyrics}`,
+     
       const params = {
         tracks: tracks,
         allowNoLyrics: allowNoLyrics
@@ -133,42 +114,10 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
         console.log(res)
+        setPassingTracks(res)
       })
     }
 
-    // const activateFilter = (filter) => {
-    //   if(filter === "profanity"){
-    //     setProfanityIsActive(true);
-    //     console.log('profanity filter active')
-    //   };
-    //   if(filter === "sexy"){
-    //     setSexyIsActive(true);
-    //     console.log('sexy filter active')
-    //   };
-    //   if(filter === "racist"){
-    //     setRacistIsActive(true);
-    //     console.log('racist filter active')
-    //   };
-    // }
-
-    // const deactivateFilter = (filter) => {
-    //   if(filter === "profanity"){
-    //     setProfanityIsActive(false);
-    //     console.log('profanity filter not active')
-    //   };
-    //   if(filter === "sexy"){
-    //     setSexyIsActive(false);
-    //     console.log('sexy filter not active')
-    //   };
-    //   if(filter === "racist"){
-    //     setRacistIsActive(false);
-    //     console.log('racist filter not active')
-    //   };
-    // }
-
-    // const fetchFilteredPlaylist = (playlist_id, profanityIsActive) => {
-
-    // }
 
     const logoutUser = (email) => {
       if (email) {
@@ -199,14 +148,10 @@ function App() {
         {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} /> : null}
         <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
         {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
-        {pid && tracks.length ? <Tracks tracks={tracks} /> : null }
-        {/* {profanityIsActive ? <ProfanityDark deactivateFilter={deactivateFilter}  /> : <ProfanityLight activateFilter={activateFilter}  />}
-        {sexyIsActive ? <SexyDark deactivateFilter={deactivateFilter}  /> : <SexyLight activateFilter={activateFilter}  />}
-        {racistIsActive ? <RacistDark deactivateFilter={deactivateFilter}  /> : <RacistLight activateFilter={activateFilter}  />} */}
+        {pid && tracks.length ? <Tracks tracks={tracks} passingTracks={passingTracks} /> : null }
         {access_token && deviceId && tracks.length ? 
-              
               <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />
-              
+ 
               : null}
               {/* add to spotplayer later playlist={playlist} */}
       </section>

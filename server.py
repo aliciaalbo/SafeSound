@@ -107,23 +107,10 @@ def parse_api():
         #print(track_data)
         return jsonify(track_data)
     elif do == "filterTracks":
-        # filters_ids = []
-        # active_filters = request.args.get(activeFilters)
-        # for filter in active_filters:
-        #     id = crud.get_filter_by_id(filter)
-        #     filters_ids.append(id)
-        # check if filter id + song id in db
-        # if no, check if song id has cached lyrics
-        # if yes, apply filter
-        # if no, query genius and get lyrics
-
         # get_json() is required for parsing JSON sent via POST instead of GET
         # need to send via POST because too much data for a GET string
         allow_no_lyrics = request.get_json().get('allowNoLyrics')
         all_tracks = request.get_json().get('tracks')
-        #print(tracks)
-        #all_tracks = json.loads(tracks)
-#        return(jsonify(all_tracks))
         passing_tracks = []
         for track in all_tracks:
             # flush=True is a cool trick to force printing to the Flask console so we can see data directly
