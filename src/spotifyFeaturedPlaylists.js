@@ -46,19 +46,20 @@ function ShowFeaturedPlaylists(props){
   }
 
   return(
-    <div>
-      FEATURED PLAYLISTS
+    <div id="featured-playlists" class="playlist">
+      <div className="playlist-header">Featured Playlists</div>
       {featuredPlaylists !== [] ? 
       featuredPlaylists.map((playlist, index) => {
-      const rowclasses = playlist.id;
+      // const rowclasses = playlist.id;
+      // className={rowclasses}
       const playlistNum = index+1;
       return (
-      <div className={rowclasses} id={playlist.id} idx={index} key={playlist.id} onClick={e => { handleClick(e, playlist.id) }} onDoubleClick={e => { handleDoubleClick(e) }}>
+      <div className="playlist-row" id={playlist.id} idx={index} key={playlist.id} onClick={e => { handleClick(e, playlist.id) }} onDoubleClick={e => { handleDoubleClick(e) }}>
          <div className="playlist-number col-auto my-auto">{playlistNum}</div>
          <div className="playlist-album col-auto my-auto"><img src={playlist.art} width="100" /></div>
          <div className="playlist-trackinfo col my-auto">
-           <div className="playlist-title">{playlist.name}</div>
-           <div className="playlist-artist">{playlist.description}</div>
+          <div className="playlist-title">{playlist.name}</div>
+          <div className="playlist-artist">{playlist.description}</div>
          </div>
        </div>
          )}

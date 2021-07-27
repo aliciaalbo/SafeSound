@@ -1,5 +1,6 @@
 import React from 'react';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSpotify } from '@fortawesome/free-brands-svg-icons'
 
 function Logout(props) {
     const handleClick = (e) => {
@@ -7,8 +8,10 @@ function Logout(props) {
         props.logoutUser(props.email);
     };
     return (
-        <button className="btn-actions justify-content-center flex-nowrap" onClick={e => { handleClick(e) }}><i className="fab fa-spotify fa-2x"></i>
-        <span>Logout</span></button>
+        <button variant="dark" className="btn btn-secondary" onClick={e => { handleClick(e) }}>
+        <FontAwesomeIcon icon={faSpotify} size="2x" />
+        <span>Logout</span>
+    </button>
     )
 }
 

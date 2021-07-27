@@ -15,15 +15,15 @@ function ShowPlaylists(props) {
         e.preventDefault()
     }
     
-
+    // className="playlist container">
     return(
-    <div className="playlist container">
-      SEARCh PLAYLISTS
+    <div id="search-playlists" className="playlist">
+      <div className="playlist-header">Search Results</div>
       {props.playlists.map((playlist, index) => {
         const rowclasses = playlist.id;
         const playlistNum = index+1;
         return (
-      <div className={rowclasses} id={playlist.id} idx={index} key={playlist.id} onClick={e => { handleClick(e, playlist.id) }} onDoubleClick={e => { handleDoubleClick(e) }}>
+      <div className="playlist-row" id={playlist.id} idx={index} key={playlist.id} onClick={e => { handleClick(e, playlist.id) }} onDoubleClick={e => { handleDoubleClick(e) }}>
         <div className="playlist-number col-auto my-auto">{playlistNum}</div>
         <div className="playlist-album col-auto my-auto"><img src={playlist.art} width="100" /></div>
         <div className="playlist-trackinfo col my-auto">

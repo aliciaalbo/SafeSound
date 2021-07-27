@@ -5,9 +5,115 @@ body {
     sans-serif;
   -webkit-font-smoothing: antialiased;
   -moz-osx-font-smoothing: grayscale;
+  background-color:#333;
+  color: #ddd;
+  margin:2em;
 }
 
 code {
   font-family: source-code-pro, Menlo, Monaco, Consolas, 'Courier New',
     monospace;
+}
+
+#app {
+  text-align:left;
+}
+
+.searchbar {
+  width:80%;
+}
+
+#show-tracks {}
+
+.tracks {
+  width:80%;
+  max-width:800px;
+  margin:2em 0 0 0;
+  background-color:#666;
+  max-height: 20em;
+  overflow-y: scroll;
+  overflow-x: hidden;
+  cursor: pointer;
+}
+
+.tracks-header {
+  background-color:#999;
+  display:block;
+  width:100%;
+  margin:0;
+  padding:.6em .7em .4em .7em;
+  font-weight:bold;
+  font-size:1.2em;
+}
+
+.track-row {
+  padding: .2em 0;
+  display: block;
+}
+
+#featured-playlists {}
+
+#my-playlists {}
+
+#search-playlists {}
+
+.playlist {
+  width:80%;
+  max-width:800px;
+  margin:2em 0 0 0;
+  background-color:#666;
+  overflow-x: hidden;
+  cursor: pointer;
+}
+
+.playlist-header {
+  background-color:#999;
+  display:block;
+  width:100%;
+  margin:0;
+  padding:.6em .7em .4em .7em;
+  font-weight:bold;
+  font-size:1.2em;
+}
+
+.playlist-row {
+  padding: .2em 0;
+  display: block;
+}
+.playlist-row:hover {
+  background-color: rgba(255, 255, 255, 0.3);
+  color:white;
+}
+.playlist-row-active, .playlist-row-active:hover {
+  background-color: rgba(255, 255, 255, 0.45) !important;
+  color:white;
+}
+
+.playlist-number {
+  width: 40px !important;
+  display:inline-block;
+}
+
+.playlist-album {
+  display:inline-block;
+}
+
+.playlist-album img {
+  display:inline-block;
+  width:60px;
+  height:60px;
+}
+
+.playlist-trackinfo {
+  display:inline-block;
+  padding-left: 1em
+}
+
+.playlist-title {
+  font-weight: bold;
+}
+
+.playlist-artist{
+  margin-top:.2em;
+  font-size: smaller;
 }

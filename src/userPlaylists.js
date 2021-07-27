@@ -1,8 +1,6 @@
 import React, {useState} from 'react';
 
 
-
-
 function UserPlaylists(props) {
     const handleClick = (e, key) => {
         e.preventDefault();
@@ -17,8 +15,8 @@ function UserPlaylists(props) {
     
 
     return(
-    <div className="playlist container">
-      MY PLAYLISTS
+      <div id="my-playlists" className="playlist">
+      <div className="playlist-header">My Playlists</div>
       {props.userPlaylists.map((playlist, index) => {
         const rowclasses = playlist.id;
         const playlistNum = index+1;

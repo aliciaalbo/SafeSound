@@ -15,6 +15,8 @@ import ShowFeaturedPlaylists from './spotifyFeaturedPlaylists';
 import AllowNoLyrics from './allowNoLyrics'
 import ShowUserPlaylists from './showUserPlaylists';
 import UserPlaylists from './userPlaylists';
+import 'bootstrap/dist/css/bootstrap.css';
+import './index.css';
 
 function App() {
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
@@ -136,19 +138,22 @@ function App() {
 
     return (
       <section className="page">
-        <div>SAFESOUND, DANGERBALLS</div>
         <PlaylistSearch fetchPlaylists={fetchPlaylists} />
+
         <SpotifyLogin />
-        <Logout logoutUser={logoutUser} />
+        <Logout logoutUser={logoutUser} /><br /><br />
+
         <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
+        <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists}  />
         <ShowTracks pid={pid} fetchTracks={fetchTracks} />
         {tracks.length ? <ApplyFilters tracks={tracks} applyFilters={applyFilters}/> : null }
-        <ShowFeaturedPlaylists setPid={setPid}/>
-        <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists}  />
-        {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} /> : null}
-        <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
-        {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
+
         {pid && tracks.length ? <Tracks tracks={tracks} passingTracks={passingTracks} /> : null }
+
+        <ShowFeaturedPlaylists setPid={setPid}/>
+        {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} /> : null}
+        {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
+
         {access_token && deviceId && tracks.length ? 
               <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />
  

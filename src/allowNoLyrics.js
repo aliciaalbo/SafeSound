@@ -7,8 +7,9 @@ function AllowNoLyrics(props){
         
     };
     return (
-        <button className="btn-actions justify-content-center flex-nowrap" onClick={e => { handleClick(e) }}>
-        <span>Allow songs with no lyrics?</span></button>
+        <button variant="dark" className="btn btn-secondary" onClick={e => { handleClick(e) }}>
+            <span>Allow songs with no lyrics?</span>
+        </button>
     )
 }
 

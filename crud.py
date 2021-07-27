@@ -180,13 +180,14 @@ def create_user_filter(user_id, filter_name):
     db.session.add(filter)
     db.session.commit()
 
-def get_filter_words_by_id(filter_id):
-    """gets word list associated with each filter id"""
-    word_list = de.session.query
+# def get_filter_words_by_id(filter_id):
+#     """gets word list associated with each filter id"""
+#     word_list = dd.session.query
 
 def apply_filter(lyricsset: set, filter_id: int):
     """checks for exact match of excluded terms, returns boolean"""
     check_words = db.session.query(Filter.word_list).filter(Filter.filter_id == filter_id).all()
+    fail_words = {}
     for word in check_words:
         if word in lyricsset:
             return False
