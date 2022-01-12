@@ -1,4 +1,5 @@
 import React, {useState, useEffect} from 'react';
+import Carousel from 'react-bootstrap/Carousel'  
 import useStickyState from './useStickyState';
 
 function ShowFeaturedPlaylists(props){
@@ -45,27 +46,41 @@ function ShowFeaturedPlaylists(props){
       e.preventDefault()
   }
 
-  return(
+  return (
     <div id="featured-playlists" class="playlist">
       <div className="playlist-header">Featured Playlists</div>
-      {featuredPlaylists !== [] ? 
-      featuredPlaylists.map((playlist, index) => {
-      // const rowclasses = playlist.id;
-      // className={rowclasses}
-      const playlistNum = index+1;
-      return (
-      <div className="playlist-row" id={playlist.id} idx={index} key={playlist.id} onClick={e => { handleClick(e, playlist.id) }} onDoubleClick={e => { handleDoubleClick(e) }}>
-         <div className="playlist-number col-auto my-auto">{playlistNum}</div>
-         <div className="playlist-album col-auto my-auto"><img src={playlist.art} width="100" /></div>
-         <div className="playlist-trackinfo col my-auto">
-          <div className="playlist-title">{playlist.name}</div>
-          <div className="playlist-artist">{playlist.description}</div>
-         </div>
-       </div>
-         )}
-       )
-      : null}
+      <div>
+  <div class='container-fluid'>
+    <div className="row title" style={{ marginBottom: "20px" }} >
+      <div class="col-sm-12 btn btn-warning">
+        Spotify Featured Playlists
+      </div>
     </div>
+  </div>
+
+  {/* <div className='container-fluid' id={track.id} idx={index} key={track.id} onClick={e => { handleClick(e, track.id) }} onDoubleClick={e => { handleDoubleClick(e) }}> */}
+    <Carousel fade="true">
+
+    {featuredPlaylists.map((track, index) => {
+      return (
+        <Carousel.Item>
+          <div style={{ maxWidth: "300px" }}>
+            <img
+              className="d-block img-fluid"
+              src={track.art}
+            />
+            <Carousel.Caption>
+              <h3>{track.title}</h3>
+            </Carousel.Caption>
+          </div>
+        </Carousel.Item>
+      )
+    })}
+
+    </Carousel>
+  </div>  
+</div>  
+
   );
 
 }
