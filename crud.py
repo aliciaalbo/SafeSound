@@ -106,6 +106,7 @@ def get_spotify_credentials(code):
     sp_oauth = oauth2.SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
     #sp_oauth = oauth2.SpotifyPKCE(cid,SPOTIPY_REDIRECT_URI,scope=SCOPE,cache_handler="CacheDB")
 
+# all above this to go in User class
 
 def find_song_lyrics(title):
     """searches genius for single title and returns lyrics as string"""
@@ -146,6 +147,8 @@ def parse_lyrics(lyrics: str):
     lyrics = re.sub(r'\s+', " ", lyrics)
     """ split to words, return the unique word set """
     return set(lyrics.split(" "))
+
+# abovie to last comment to go in Lyrics class
 
 def build_filter(file):
     """opens and parses file, removes phrases, returns single words as string separated by line breaks"""
