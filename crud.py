@@ -1,4 +1,4 @@
-from model import db, connect_to_db, User, Filter, CachedResult, CachedLyrics
+from model import db, connect_to_db, User, Filter, CachedResult, CachedLyrics, Tracks
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 import os
@@ -117,12 +117,32 @@ def find_song_lyrics(title):
 def find_playlist_lyrics(playlist_id):
     """searches genius for batch of songs, returns dictionary(? tbd)"""
 
-def create_lyrics(lyrics):
-    """creates a set of unique words in lyrics and returns them as a string separated by line breaks"""
-    unique_lyrics = set()
+# don't need since implmenting count for filter
+# def create_lyrics(lyrics):
+#     """creates a set of unique words in lyrics and returns them as a string separated by line breaks"""
+#     unique_lyrics = set()
+#     for word in lyrics:
+#         unique_lyrics.add(word)
+#     return "\n".join(list(unique_lyrics))
+
+def count_words(lyrics):
+    word_counts = {}
     for word in lyrics:
-        unique_lyrics.add(word)
-    return "\n".join(list(unique_lyrics))
+        word_counts[word] = word_counts.get(word, 0) +1
+    return word_counts
+
+def save_track_info(track_id, title, artist, album_art, explicit):
+    "saves track id and data"
+
+    track = Tracks(
+                    track_id = track_id,
+                    title = title,
+                    artist = artist,
+                    album_art = album_art
+                    explicit = explicit
+    )
+    db.session.add(track)
+    db.session.commit()
 
 def save_lyrics(unique_lyrics, track_id, title, artist, album_art):
     """saves unique words in lyrics as string separated by line breaks with track info"""
@@ -132,6 +152,7 @@ def save_lyrics(unique_lyrics, track_id, title, artist, album_art):
                     title = title,
                     artist = artist,
                     album_art = album_art
+                    explicit = explicit
     )
     db.session.add(cached_lyrics)
     db.session.commit()
