@@ -37,15 +37,38 @@ class CachedResult(db.Model):
     pass_status = db.Column(db.Boolean)
 
 class CachedLyrics(db.Model):
-    """stores unique words in lyrics"""
+    """stores count of each word in song lyrics"""
     __tablename__ = "cached_lyrics"
 
-    track_id = db.Column(db.String, primary_key=True)
+    lyrics_id = db.Column(db.String, primary_key=True)
+    track_id = db.Column(db.String, db.ForeignKey('tracks.track_id'))
     title = db.Column(db.String)
     artist = db.Column(db.String)
     album_art = db.Column(db.String)
     lyrics = db.Column(db.Text)
 
+    # to store word counts - ideas: mapping table? 
+    # have set of words, leave cached lyrics as is
+    # reduce set to banned words, then do count of those words 
+
+    # change lyrics to lyrics id (?), then have mapping table
+
+    # OK I think I have it now - lyrics will be mapping table with lyrics id (primary key),
+    #  track id, word, and then word count then make new table for songs with
+    # track id, title, artist, art, genre, ummm?
+    # THEN redo lyrics functions to store differently
+
+class Tracks(db.Model):
+    """stores track data"""
+    __tablename__ = "tracks"
+
+    track_id = db.Column(db.String, primary_key=True)
+    title = db.Column(db.String)
+    artist = db.Column(db.String)
+    album_art = db.Column(db.String)
+    genre = db.Column(db.String)
+
+    db.relationship(User, backref='cached_lyrics')
 
 
 def connect_to_db(flask_app, db_uri='postgresql:///safesound', echo=True):
