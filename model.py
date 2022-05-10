@@ -68,8 +68,10 @@ class Tracks(db.Model):
     album_art = db.Column(db.String)
     # genre = db.Column(db.String)
     # Genre for a song is not straighforawrd to get - can get list 
-    # of genres associtaed with arist from artist endpoint no sure 
+    # of genres associtaed with arist from artist endpoint not sure 
     # how to get by song 
+    # last.fm doesn't have what I need
+    
     explicit = db.Column(db.Boolean)
 
     db.relationship(User, backref='cached_lyrics')
