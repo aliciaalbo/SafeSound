@@ -19,17 +19,18 @@ import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 
 function App() {
+    // stickyState only works for strings, atm
     const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
     const [playlists, setPlaylists] = useStickyState("", "playlists");
     const [playstate, setPlaystate] = useStickyState("", "playstate");
     const [access_token, setAccessToken] = useStickyState("", "access_token");
     const [name, setName] = useStickyState("", "name");
     const [email, setEmail] = useStickyState("", "email");
-    const [tracks, setTracks] = useStickyState([], "tracks")
+    const [tracks, setTracks] = useState([], "tracks")
     const [pid, setPid] = useStickyState("", "pid");
     const [failingTracks, setFailingTracks] = useState([]);
     const [passingTracks, setPassingTracks] = useState([])
-    const [allowNoLyrics, setAllowNoLyrics] = useStickyState(false, "allowNoLyrics")
+    const [allowNoLyrics, setAllowNoLyrics] = useState(false, "allowNoLyrics")
     const [userPlaylists, setUserPlaylists] = useStickyState("", "userPlaylists")
 
 

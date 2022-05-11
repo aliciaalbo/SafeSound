@@ -12,11 +12,11 @@ function WebPlayer(props) {
 
   // from pampaplay source code
   useEffect(() => {
-   if (props.access_token) {
+   if (token) {
     // already loaded, we are rolling a new token probably
     if (window.Spotify) {
       playerRef.current = new window.Spotify.Player({
-        name: 'Drizzle - Weather-Generated Playlists',
+        name: 'SafeSound',
         getOAuthToken: cb => {
           console.log('cb at reroll:',token);
           cb(token);
@@ -29,7 +29,7 @@ function WebPlayer(props) {
     // this function is called by the Spotify script once it is dynamically loaded
     window.onSpotifyWebPlaybackSDKReady = () => {
       playerRef.current = new window.Spotify.Player({
-        name: 'Drizzle - Weather-Generated Playlists',
+        name: 'SafeSound',
         getOAuthToken: (cb) => {
           console.log('cb at loading sdk first time:',token);
           cb(token);
@@ -50,7 +50,7 @@ function WebPlayer(props) {
     }
     console.log('player details:',playerRef);
    }
-  }, [token]);
+  }, [props, token]);
 
 
 
@@ -76,11 +76,11 @@ function WebPlayer(props) {
           props.setDeviceId(readyDeviceId);
           console.log('rdy deviceid', readyDeviceId);
         });
-        player.addListener('player_state_changed', state => {
-
+        player.addListener('player_state_changed', (state) => {
+          if (state) {
             props.setIsPaused(state.paused);
             props.setCurTrackId(state.track_window.current_track.id);
-         
+          }
         });
         // now connect
         let connected = await playerRef.current.connect();
@@ -89,7 +89,7 @@ function WebPlayer(props) {
         }
       }
     })();
-  }, [isReady]);
+  }, [props, isReady]);
 
   return {
     player: playerRef.current

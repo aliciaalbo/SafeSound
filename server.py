@@ -1,8 +1,9 @@
 from crud import filter_cache_check
-from flask import (Flask, render_template, request, flash, session, redirect, jsonify)
+from flask import (Flask, render_template, request, session, redirect, jsonify)
 from jinja2 import StrictUndefined
 from model import connect_to_db
 import crud
+import get_playlists
 # import model
 import json
 import spotipy
@@ -28,7 +29,6 @@ auth_manager = SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cach
 @app.route('/')
 def show_homepage():
     """show homepage"""
-
     return render_template('homepage.html')
 
 @app.route('/api', methods=['GET', 'POST'])
@@ -49,39 +49,11 @@ def parse_api():
         return "Could not logout, no access token"
     elif do == "getPlaylists":
         search_term = request.args.get('term')
-        res = crud.search_for_playlists(search_term)
-        playlist_data = []
-        for i, item in enumerate(res['playlists']['items']):
-            data = {}
-            data['id'] = item['id']
-            data['description'] = item['description']
-            data['name'] = item['name']
-            data['art'] = item['images'][0]['url']
-            playlist_data.append(data)
-        # print(playlist_data)
-        return jsonify(playlist_data)
+        return get_playlists.get_playlists(search_term)
     elif do == "getFeaturedPlaylists":
-        res = crud.search_for_featured_playlists()
-        featured_playlists = []
-        for playlist in res['playlists']['items']:
-            data = {}
-            data['id'] = playlist['id']
-            data['description'] = playlist['description']
-            data['name'] = playlist['name']
-            data['art'] = playlist['images'][0]['url']
-            featured_playlists.append(data)
-        return jsonify(featured_playlists)
+        return get_playlists.get_featured_playlists()
     elif do == "getUserPlaylists":
-        res = crud.search_for_user_playlists()
-        user_playlists = []
-        for playlist in res['items']:
-            data = {}
-            data['id'] = playlist['id']
-            data['description'] = playlist['description']
-            data['name'] = playlist['name']
-            data['art'] = playlist['images'][0]['url']
-            user_playlists.append(data)
-        return jsonify(user_playlists)
+        return get_playlists.get_user_playlists()
     elif do == "getTracks":
         pid = request.args.get('pid')
         # print(pid)
@@ -101,6 +73,7 @@ def parse_api():
                     else:
                         artist_name = artist_name + ', ' + artist['name']
                 data['artist'] = artist_name
+                data['explicit'] = track['track']['explicit']
             except(TypeError):
                 continue  
             track_data.append(data)  

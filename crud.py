@@ -78,7 +78,7 @@ def update_refresh_token(email, refresh_token):
 def get_spotify_token(code):
     cid = secrets.cid
     secret = secrets.secret
-    SPOTIFY_REDIRECT_URI = secrets.spotifyredirect
+    SPOTIPY_REDIRECT_URI = secrets.spotifyredirect
     SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
 
     # CacheDBHandler is a custom class you need to write to store and retrieve cache in the DB, in cachedb.py
@@ -103,7 +103,7 @@ def get_spotify_credentials(code):
     CACHE = '.spotipyoauthcache'
 
     # CacheDB is a custom class you need to make to store the cache in the DB
-    sp_oauth = oauth2.SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
+    sp_oauth = SpotifyOAuth(cid, secret, SPOTIFY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
     #sp_oauth = oauth2.SpotifyPKCE(cid,SPOTIPY_REDIRECT_URI,scope=SCOPE,cache_handler="CacheDB")
 
 # all above this to go in User class
@@ -135,11 +135,11 @@ def save_track_info(track_id, title, artist, album_art, explicit):
     "saves track id and data"
 
     track = Tracks(
-                    track_id = track_id,
-                    title = title,
-                    artist = artist,
-                    album_art = album_art
-                    explicit = explicit
+        track_id = track_id,
+        title = title,
+        artist = artist,
+        album_art = album_art
+        explicit = explicit
     )
     db.session.add(track)
     db.session.commit()
@@ -147,12 +147,12 @@ def save_track_info(track_id, title, artist, album_art, explicit):
 def save_lyrics(unique_lyrics, track_id, title, artist, album_art):
     """saves unique words in lyrics as string separated by line breaks with track info"""
     cached_lyrics = CachedLyrics(
-                    lyrics = unique_lyrics,
-                    track_id = track_id,
-                    title = title,
-                    artist = artist,
-                    album_art = album_art
-                    explicit = explicit
+        lyrics = unique_lyrics,
+        track_id = track_id,
+        title = title,
+        artist = artist,
+        album_art = album_art
+        # explicit = explicit
     )
     db.session.add(cached_lyrics)
     db.session.commit()
