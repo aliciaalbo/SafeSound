@@ -28,6 +28,7 @@ function App() {
     const [email, setEmail] = useStickyState("", "email");
     const [tracks, setTracks] = useState([], "tracks")
     const [pid, setPid] = useStickyState("", "pid");
+    const [playlistName, setPlaylistName] = useState("", "playlistName")
     const [failingTracks, setFailingTracks] = useState([]);
     const [passingTracks, setPassingTracks] = useState([])
     const [allowNoLyrics, setAllowNoLyrics] = useState(false, "allowNoLyrics")
@@ -149,9 +150,9 @@ function App() {
         <ShowTracks pid={pid} fetchTracks={fetchTracks} />
         {tracks.length ? <ApplyFilters tracks={tracks} applyFilters={applyFilters}/> : null }
 
-        {pid && tracks.length ? <Tracks tracks={tracks} passingTracks={passingTracks} /> : null }
+        {pid && tracks.length ? <Tracks tracks={tracks} passingTracks={passingTracks} playlistName={playlistName}/> : null }
 
-        <ShowFeaturedPlaylists setPid={setPid}/>
+        <ShowFeaturedPlaylists setPid={setPid} setPlaylistName={setPlaylistName}/>
         {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} /> : null}
         {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
 
