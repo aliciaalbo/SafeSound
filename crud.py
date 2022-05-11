@@ -2,13 +2,11 @@ from model import db, connect_to_db, User, Filter, CachedResult, CachedLyrics, T
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 import os
-import secrets
+import secret
 import lyricsgenius
 import re
 
-cid = secrets.cid
-secret = secrets.secret
-client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
+client_credentials_manager = SpotifyClientCredentials(client_id=secret.cid, client_secret=secret.secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 genius = lyricsgenius.Genius()
 
@@ -76,13 +74,11 @@ def update_refresh_token(email, refresh_token):
     return user
 
 def get_spotify_token(code):
-    cid = secrets.cid
-    secret = secrets.secret
-    SPOTIPY_REDIRECT_URI = secrets.spotifyredirect
+    SPOTIPY_REDIRECT_URI = secret.spotifyredirect
     SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
 
     # CacheDBHandler is a custom class you need to write to store and retrieve cache in the DB, in cachedb.py
-    auth_manager = SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
+    auth_manager = SpotifyOAuth(secret.cid, secret.secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
     # ignore cache until make it work
     token_info = auth_manager.get_access_token(code, check_cache=False)
     return token_info
@@ -96,15 +92,13 @@ def get_spotify_credentials(code):
     # query db for access
     # check id fresh
     # if yes save play list
-    cid = secrets.cid
-    secret = secrets.secret
-    SPOTIFY_REDIRECT_URI = secrets.spotifyredirect
+    SPOTIFY_REDIRECT_URI = secret.spotifyredirect
     SCOPE = 'web-playback user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
     CACHE = '.spotipyoauthcache'
 
     # CacheDB is a custom class you need to make to store the cache in the DB
-    sp_oauth = SpotifyOAuth(cid, secret, SPOTIFY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
-    #sp_oauth = oauth2.SpotifyPKCE(cid,SPOTIPY_REDIRECT_URI,scope=SCOPE,cache_handler="CacheDB")
+    sp_oauth = SpotifyOAuth(secret.cid, secret.secret, SPOTIFY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
+    #sp_oauth = oauth2.SpotifyPKCE(secret.cid,SPOTIPY_REDIRECT_URI,scope=SCOPE,cache_handler="CacheDB")
 
 # all above this to go in User class
 
@@ -138,14 +132,16 @@ def save_track_info(track_id, title, artist, album_art, explicit):
         track_id = track_id,
         title = title,
         artist = artist,
-        album_art = album_art
+        album_art = album_art,
         explicit = explicit
     )
+        
+    
     db.session.add(track)
     db.session.commit()
 
 def save_lyrics(unique_lyrics, track_id, title, artist, album_art):
-    """saves unique words in lyrics as string separated by line breaks with track info"""
+    """saves unique words in lyrics with a count of their occurances"""
     cached_lyrics = CachedLyrics(
         lyrics = unique_lyrics,
         track_id = track_id,

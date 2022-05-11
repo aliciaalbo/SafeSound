@@ -9,19 +9,18 @@ import json
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
-import secrets
+import secret
 # import os
 
 app = Flask(__name__)
-app.secret_key = secrets.secret_key
+app.secret_key = secret.secret_key
 app.jinja_env.undefined = StrictUndefined
 
 connect_to_db(app)
 
-cid = secrets.cid
-secret = secrets.secret
-SPOTIPY_REDIRECT_URI = secrets.spotifyredirect
-client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret)
+cid = secret.cid
+SPOTIPY_REDIRECT_URI = secret.spotifyredirect
+client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret.secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
 auth_manager = SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )

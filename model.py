@@ -1,6 +1,6 @@
 from flask_sqlalchemy import SQLAlchemy
 import psycopg2
-import secrets
+import secret
 
 db = SQLAlchemy()
 
@@ -78,7 +78,7 @@ class Tracks(db.Model):
 
 def connect_to_db(flask_app, db_uri='postgresql:///safesound', echo=True):
     # ignoring passed-in db_uri so it works on the server
-    flask_app.config['SQLALCHEMY_DATABASE_URI'] = secrets.db_uri
+    flask_app.config['SQLALCHEMY_DATABASE_URI'] = secret.db_uri
     flask_app.config['SQLALCHEMY_ECHO'] = echo
     flask_app.config['SQLALCHEMY_TRACK_MODIFICATIONS'] = False
 

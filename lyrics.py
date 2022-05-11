@@ -1,5 +1,3 @@
-import secrets
-import os
 import lyricsgenius
 genius = lyricsgenius.Genius()
 

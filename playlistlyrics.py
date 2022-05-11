@@ -1,4 +1,4 @@
-import secrets 
+import secret 
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests 
@@ -95,5 +95,5 @@ class GetLyrics():
             song_lyrics.append(lyrics)
         return song_lyrics
 
-songs = GetLyrics(secrets.cid, secrets.secret, "e79265e6859d48e7", '5pHQKHf64r53yj6XyP0Fzk', GENIUS_ACCESS_TOKEN)
+songs = GetLyrics(secret.cid, secret.secret, "e79265e6859d48e7", '5pHQKHf64r53yj6XyP0Fzk', GENIUS_ACCESS_TOKEN)
 song_lyrics = songs.get_lyrics()
