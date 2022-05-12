@@ -153,7 +153,7 @@ function App() {
         {pid && tracks.length ? <Tracks tracks={tracks} passingTracks={passingTracks} playlistName={playlistName}/> : null }
 
         <ShowFeaturedPlaylists setPid={setPid} setPlaylistName={setPlaylistName}/>
-        {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} /> : null}
+        {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} setPlaylistName={setPlaylistName}/> : null}
         {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} setPlaylistName={setPlaylistName} /> : null}
 
         {access_token && deviceId && tracks.length ? 
