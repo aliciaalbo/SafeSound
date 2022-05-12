@@ -48,7 +48,7 @@ function App() {
 
     // instantiate the Spotify Player passes props in object to webplayer.js
     //  isPaused: isPaused, curTrackId: curTrackId, 
-    let webplayer = WebPlayer({ access_token: access_token, isReady: isReady, setIsReady: setIsReady, setDeviceId: setDeviceId, setIsPaused: setIsPaused, setCurTrackId: setCurTrackId });
+    const webplayer = WebPlayer({ access_token: access_token, isReady: isReady, setIsReady: setIsReady, setDeviceId: setDeviceId, setIsPaused: setIsPaused, setCurTrackId: setCurTrackId });
 
     // load the access token through Python's session if can
     if (!access_token) {
@@ -154,7 +154,7 @@ function App() {
 
         <ShowFeaturedPlaylists setPid={setPid} setPlaylistName={setPlaylistName}/>
         {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} /> : null}
-        {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} /> : null}
+        {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} setPlaylistName={setPlaylistName} /> : null}
 
         {access_token && deviceId && tracks.length ? 
               <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />

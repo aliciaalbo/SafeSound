@@ -50,7 +50,7 @@ function WebPlayer(props) {
     }
     console.log('player details:',playerRef);
    }
-  }, [props, token]);
+  }, [props.setIsReady, token]);
 
 
 

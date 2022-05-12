@@ -34,12 +34,12 @@ function ShowFeaturedPlaylists(props){
 
   if(loading) return "Loading...";
   if(error) return "Error: " + error;
-
-  const handleClick = (e, key) => {
+  const handleClick = (e, playlistId, playlistName) => {
       e.preventDefault();
-      props.setPid(key)
+      props.setPid(playlistId)
+      props.setPlaylistName(playlistName)
       console.log("pid set")
-      console.log(key)
+      console.log(playlistId)
   };
 
   const handleDoubleClick = (e) => {
@@ -47,30 +47,27 @@ function ShowFeaturedPlaylists(props){
   }
 
   return (
-    <div id="featured-playlists" class="playlist">
+    <div id="featured-playlists" className="playlist">
       <div className="playlist-header">Featured Playlists</div>
       <div>
-  <div class='container-fluid'>
+  <div className='container-fluid'>
     <div className="row title" style={{ marginBottom: "20px" }} >
-      <div class="col-sm-12 btn btn-warning">
+      <div className="col-sm-12 btn btn-warning">
         Spotify Featured Playlists
       </div>
     </div>
   </div>
-
-  {/* <div className='container-fluid' id={track.id} idx={index} key={track.id} onClick={e => { handleClick(e, track.id) }} onDoubleClick={e => { handleDoubleClick(e) }}> */}
-    <Carousel fade="true">
-
-    {featuredPlaylists.map((track, index) => {
+    <Carousel fade={true}>
+    {featuredPlaylists.map((playlist, index) => {
       return (
-        <Carousel.Item>
+        <Carousel.Item key={playlist.id} onClick={e => { handleClick(e, playlist.id, playlist.name) }}>
           <div style={{ maxWidth: "300px" }}>
             <img
               className="d-block img-fluid"
-              src={track.art}
+              src={playlist.art}
             />
             <Carousel.Caption>
-              <h3>{track.title}</h3>
+              <h3>{playlist.title}</h3>
             </Carousel.Caption>
           </div>
         </Carousel.Item>

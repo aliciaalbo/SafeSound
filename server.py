@@ -18,12 +18,11 @@ app.jinja_env.undefined = StrictUndefined
 
 connect_to_db(app)
 
-cid = secret.cid
 SPOTIPY_REDIRECT_URI = secret.spotifyredirect
-client_credentials_manager = SpotifyClientCredentials(client_id=cid, client_secret=secret.secret)
+client_credentials_manager = SpotifyClientCredentials(client_id=secret.cid, client_secret=secret.secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
-auth_manager = SpotifyOAuth(cid, secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
+auth_manager = SpotifyOAuth(secret.cid, secret.secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
 
 @app.route('/')
 def show_homepage():

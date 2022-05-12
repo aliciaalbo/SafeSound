@@ -3,7 +3,7 @@ import React from 'react';
 function Tracks(props) {
   return (
     <div id="show-tracks" className="tracks">
-     <div className="tracks-header">SHOULD BE PLAYLIST TITLE: Tracks</div>
+     <div className="tracks-header">{props.playlistName}</div>
       {props.tracks.map((track, index) => {
         const rowclasses = track.id;
         const songNum = index+1;
