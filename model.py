@@ -15,7 +15,8 @@ class User(db.Model):
     access_token = db.Column(db.String)
     refresh_token = db.Column(db.String)
 
-
+# I might nopt need this either, can do on the fly with counts not that slow
+# but might want to save values in state? 
 class Filter(db.Model):
     """stores values for lyrics to exclude"""
     __tablename__ = "filters"
@@ -27,14 +28,16 @@ class Filter(db.Model):
 
     db.relationship(User, backref='filters')
 
-class CachedResult(db.Model):
-    """store results of filters applied to individual songs"""
-    __tablename__ = "cached_results"
 
-    cached_result_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
-    track_id = db.Column(db.String)
-    filter_id = db.Column(db.Integer, db.ForeignKey('filters.filter_id'))
-    pass_status = db.Column(db.Boolean)
+# Dont need this with the calculated column in tracks
+# class CachedResult(db.Model):
+#     """store results of filters applied to individual songs"""
+#     __tablename__ = "cached_results"
+
+#     cached_result_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+#     track_id = db.Column(db.String)
+#     filter_id = db.Column(db.Integer, db.ForeignKey('filters.filter_id'))
+#     pass_status = db.Column(db.Boolean)
 
 class CachedLyrics(db.Model):
     """stores count of each word in song lyrics"""
@@ -45,7 +48,10 @@ class CachedLyrics(db.Model):
     title = db.Column(db.String)
     artist = db.Column(db.String)
     album_art = db.Column(db.String)
-    lyrics = db.Column(db.Text)
+    lyric = db.Column(db.String)
+    count = db.Column(db.Integer)
+
+#class 
 
     # to store word counts - ideas: mapping table? 
     # have set of words, leave cached lyrics as is
@@ -67,11 +73,8 @@ class Tracks(db.Model):
     artist = db.Column(db.String)
     album_art = db.Column(db.String)
     explicit = db.Column(db.Boolean)
-    # genre = db.Column(db.String)
-    # Genre for a song is not straighforawrd to get - can get list 
-    # of genres associtaed with arist from artist endpoint not sure 
-    # how to get by song 
-    # last.fm doesn't have what I need
+    # caluclated column for total count of bad words here
+    # count = ??
     
     db.relationship(User, backref='cached_lyrics')
 
