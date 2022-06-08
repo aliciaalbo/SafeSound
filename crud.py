@@ -1,4 +1,4 @@
-from model import db, connect_to_db, User, Filter, CachedResult, CachedLyrics, Tracks
+from model import db, connect_to_db, User, Filter, CachedLyrics, Tracks
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 import os
@@ -204,6 +204,8 @@ def create_user_filter(user_id, filter_name):
 #     """gets word list associated with each filter id"""
 #     word_list = dd.session.query
 
+
+# refactor to do counts
 def apply_filter(lyricsset: set, filter_id: int):
     """checks for exact match of excluded terms, returns boolean"""
     check_words = db.session.query(Filter.word_list).filter(Filter.filter_id == filter_id).all()
@@ -218,16 +220,16 @@ def save_status(track_id, filter_id):
     """saves pass/fail status of track for chosen filter"""
 
 
-def filter_cache_check(track_id, filter_id):
-    """checks if filter has previously been applied to track"""
-    entry = CachedResult.query.filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id).first()
-    if entry:
-        return True
-    return False
+# def filter_cache_check(track_id, filter_id):
+#     """checks if filter has previously been applied to track"""
+#     entry = CachedResult.query.filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id).first()
+#     if entry:
+#         return True
+#     return False
 
-def get_cached_results(track_id, filter_id):
-    """returns cached pass/fail status of filter applied to track"""
-    return CachedResult.query(CachedResult.pass_status).filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id)
+# def get_cached_results(track_id, filter_id):
+#     """returns cached pass/fail status of filter applied to track"""
+#     return CachedResult.query(CachedResult.pass_status).filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id)
 
 def lyrics_cache_check_by_id(track_id):
     """checks if lyrics are saved"""

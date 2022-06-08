@@ -1,4 +1,4 @@
-from crud import filter_cache_check
+# from crud import filter_cache_check
 from flask import (Flask, render_template, request, session, redirect, jsonify)
 from jinja2 import StrictUndefined
 from model import connect_to_db
@@ -86,24 +86,24 @@ def parse_api():
         for track in all_tracks:
             # flush=True is a cool trick to force printing to the Flask console so we can see data directly
             #print(track, flush=True)
-            if filter_cache_check(track['id'], 1):
-                print("match found")
-                if crud.get_cached_results(track['id'], 1):
+            # if filter_cache_check(track['id'], 1):
+            #     print("match found")
+            #     if crud.get_cached_results(track['id'], 1):
+            #         passing_tracks.append(track)
+            #         print("appended")
+            # elif crud.lyrics_cache_check_by_id(track['id']):
+            #     lyrics = crud.get_lyrics_by_track_id(track['id'])
+            #     lyrics_set = crud.parse_lyrics(lyrics)
+            #     print("lyrics match found")
+            #     if crud.apply_filter(lyrics_set, 1):
+            #         passing_tracks.append(track)
+            # else:
+            unique_lyrics = crud.find_song_lyrics(track['title'])
+            if unique_lyrics is not None:
+                crud.save_lyrics(unique_lyrics, track['id'], track['title'], track['artist'], track['art'])
+                lyricsset = crud.parse_lyrics(unique_lyrics)
+                if crud.apply_filter(lyricsset, 1):
                     passing_tracks.append(track)
-                    print("appended")
-            elif crud.lyrics_cache_check_by_id(track['id']):
-                lyrics = crud.get_lyrics_by_track_id(track['id'])
-                lyrics_set = crud.parse_lyrics(lyrics)
-                print("lyrics match found")
-                if crud.apply_filter(lyrics_set, 1):
-                    passing_tracks.append(track)
-            else:
-                unique_lyrics = crud.find_song_lyrics(track['title'])
-                if unique_lyrics is not None:
-                    crud.save_lyrics(unique_lyrics, track['id'], track['title'], track['artist'], track['art'])
-                    lyricsset = crud.parse_lyrics(unique_lyrics)
-                    if crud.apply_filter(lyricsset, 1):
-                        passing_tracks.append(track)
         return jsonify(passing_tracks)
 
 
