@@ -19,6 +19,32 @@ code {
   text-align:left;
 }
 
+#container {
+  display: grid;
+  grid-template-columns: 1fr 2fr 1fr;
+  grid-template-rows: auto;
+  grid-template-areas: 
+    "header header header"
+    "left-sidebar main right-sidebar";
+}
+
+#header-block {
+  grid-area: header;
+  text-align: right;
+}
+
+#left-sidebar {
+  grid-area: left-sidebar;
+}
+
+#main-block {
+  grid-area: main;
+}
+
+#right-sidebar {
+  grid-area: right-sidebar;
+}
+
 .searchbar {
   width:80%;
 }

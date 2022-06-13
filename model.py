@@ -43,15 +43,11 @@ class CachedLyrics(db.Model):
     """stores count of each word in song lyrics"""
     __tablename__ = "cached_lyrics"
 
-    lyrics_id = db.Column(db.String, primary_key=True)
+    cached_lyrics_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
     track_id = db.Column(db.String, db.ForeignKey('tracks.track_id'))
-    title = db.Column(db.String)
-    artist = db.Column(db.String)
-    album_art = db.Column(db.String)
-    lyric = db.Column(db.String)
-    count = db.Column(db.Integer)
-
-#class 
+    word = db.Column(db.String)
+    word_count = db.Column(db.Integer)
+    lookup_idx = db.Index('lookup_idx', track_id, word, unique=True)
 
     # to store word counts - ideas: mapping table? 
     # have set of words, leave cached lyrics as is
@@ -76,7 +72,7 @@ class Tracks(db.Model):
     # caluclated column for total count of bad words here
     # count = ??
     
-    db.relationship(User, backref='cached_lyrics')
+    db.relationship(CachedLyrics, backref='tracks')
 
 
 def connect_to_db(flask_app, db_uri='postgresql:///safesound', echo=True):

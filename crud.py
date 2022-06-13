@@ -1,7 +1,7 @@
 from model import db, connect_to_db, User, Filter, CachedLyrics, Tracks
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
-import os
+# import os
 import secret
 import lyricsgenius
 import re
@@ -75,7 +75,7 @@ def update_refresh_token(email, refresh_token):
 
 def get_spotify_token(code):
     SPOTIPY_REDIRECT_URI = secret.spotifyredirect
-    SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
+    SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing playlist-read-private'
 
     # CacheDBHandler is a custom class you need to write to store and retrieve cache in the DB, in cachedb.py
     auth_manager = SpotifyOAuth(secret.cid, secret.secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
@@ -102,16 +102,16 @@ def get_spotify_credentials(code):
 
 # all above this to go in User class
 
-def find_song_lyrics(title):
+def find_song_lyrics(title, artist):
     """searches genius for single title and returns lyrics as string"""
-    song = genius.search_song(title= title, artist='', song_id=None, get_full_info=True)
+    song = genius.search_song(title=title, artist=artist, song_id=None, get_full_info=True)
     if song is not None:
         return song.lyrics
 
 def find_playlist_lyrics(playlist_id):
     """searches genius for batch of songs, returns dictionary(? tbd)"""
 
-# don't need since implmenting count for filter
+# don't need since implementing count for filter
 # def create_lyrics(lyrics):
 #     """creates a set of unique words in lyrics and returns them as a string separated by line breaks"""
 #     unique_lyrics = set()
@@ -119,14 +119,19 @@ def find_playlist_lyrics(playlist_id):
 #         unique_lyrics.add(word)
 #     return "\n".join(list(unique_lyrics))
 
-def count_words(lyrics):
+def count_words(lyrics: list):
     word_counts = {}
     for word in lyrics:
         word_counts[word] = word_counts.get(word, 0) +1
     return word_counts
 
+def get_track_info(track_id):
+    return Tracks.query.filter(Tracks.track_id == track_id).first()
+
 def save_track_info(track_id, title, artist, album_art, explicit):
-    "saves track id and data"
+    """saves track id and data from Spotify"""
+    if get_track_info(track_id):
+        return
 
     track = Tracks(
         track_id = track_id,
@@ -135,35 +140,41 @@ def save_track_info(track_id, title, artist, album_art, explicit):
         album_art = album_art,
         explicit = explicit
     )
-        
-    
     db.session.add(track)
     db.session.commit()
 
-def save_lyrics(unique_lyrics, track_id, title, artist, album_art):
-    """saves unique words in lyrics with a count of their occurances"""
-    cached_lyrics = CachedLyrics(
-        lyrics = unique_lyrics,
-        track_id = track_id,
-        title = title,
-        artist = artist,
-        album_art = album_art
-        # explicit = explicit
-    )
-    db.session.add(cached_lyrics)
-    db.session.commit()
+def has_lyrics(track_id):
+    return CachedLyrics.query.filter(CachedLyrics.track_id == track_id).first()
+
+def get_word_count(track_id, word):
+    return CachedLyrics.query.filter(CachedLyrics.track_id == track_id).filter(CachedLyrics.word == word).first()
+
+def save_lyrics(track_id: int, lyrics_words: list, word_counts: list):
+    """ saves unique words in lyrics with a count of their occurences """
+    if has_lyrics(track_id):
+        return
+    for word in lyrics_words:
+        cached_lyric = CachedLyrics(
+            track_id = track_id,
+            word = word,
+            word_count = word_counts[word],
+        )
+        db.session.add(cached_lyric)
+        db.session.commit()
 
 def parse_lyrics(lyrics: str):
     """ replace line breaks and periods with spaces """
     lyrics = lyrics.replace('\n', ' ')
     lyrics = lyrics.replace('\r', ' ')
     lyrics = lyrics.replace('.', ' ')
+    # int'l lowercase
+    lyrics = lyrics.casefold()
     """ removes any other symbol that is not a letter, number or space """
-    lyrics = re.sub(r'[^a-zA-Z0-9\s]', '', lyrics)
+    lyrics = re.sub(r'[^a-z\s]', '', lyrics)
     """ convert any string of spaces into a single space """
     lyrics = re.sub(r'\s+', " ", lyrics)
-    """ split to words, return the unique word set """
-    return set(lyrics.split(" "))
+    """ split to words """
+    return lyrics.split(" ")
 
 # abovie to last comment to go in Lyrics class
 
@@ -206,12 +217,12 @@ def create_user_filter(user_id, filter_name):
 
 
 # refactor to do counts
-def apply_filter(lyricsset: set, filter_id: int):
+def apply_filter(unique_words: list, filter_id: int):
     """checks for exact match of excluded terms, returns boolean"""
     check_words = db.session.query(Filter.word_list).filter(Filter.filter_id == filter_id).all()
     fail_words = {}
     for word in check_words:
-        if word in lyricsset:
+        if word in unique_words:
             return False
     return True
 
@@ -237,12 +248,11 @@ def lyrics_cache_check_by_id(track_id):
         return True
     return False
 
-def get_lyrics_by_track_id(track_id):
+def get_words_by_track_id(track_id):
     """retrieves cached_lyrics from db"""
-    response = db.session.query(CachedLyrics.lyrics).filter(CachedLyrics.track_id == track_id).first()
+    response = db.session.query(CachedLyrics.word).filter(CachedLyrics.track_id == track_id).all()
     if response is not None:
-        return response['lyrics']
-    #return CachedLyrics.query(CachedLyrics.lyrics).filter(CachedLyrics.track_id == track_id).first()
+        return [word for word, in response]
 
 def search_for_playlists(search_term):
     """searches Spotify for playlists and returns top 10 playlist objects"""
@@ -256,16 +266,18 @@ def search_for_featured_playlists():
 
 def search_for_user_playlists():
     """returns user's saved playlists (50)"""
-    response = spotify.current_user_playlists(limit=3)
+    response = spotify.current_user_playlists(limit=50)
     user_playlists = []
     for playlist in response['items']:
         data = {}
-        data['id'] = playlist['id']
-        data['description'] = playlist['description']
-        data['name'] = playlist['name']
-        data['art'] = playlist['images'][0]['url']
-        user_playlists.append(data)
-    print(user_playlists)
+        if playlist['id']:
+            data['id'] = playlist['id']
+            data['description'] = playlist['description'] or ""
+            data['name'] = playlist['name'] or ""
+            data['art'] = playlist['images'][0]['url'] if playlist['images'] else ""
+            user_playlists.append(data)
+
+    print("user playlists:", len(user_playlists))
     # return True
     return response
 

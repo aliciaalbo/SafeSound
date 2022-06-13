@@ -1,8 +1,8 @@
 import React, {useState, useEffect} from 'react';
 import ReactDOM from 'react-dom';
 import useStickyState from "./useStickyState";
-import WebPlayer from "./webplayer";
-import SpotPlayer from "./spotplayer";
+// import WebPlayer from "./webplayer";
+// import SpotPlayer from "./spotplayer";
 import PlaylistSearch from "./playlistSearch"
 import SpotifyLogin from './spotifylogin';
 import ShowPlaylists from './playlists';
@@ -48,7 +48,7 @@ function App() {
 
     // instantiate the Spotify Player passes props in object to webplayer.js
     //  isPaused: isPaused, curTrackId: curTrackId, 
-    const webplayer = WebPlayer({ access_token: access_token, isReady: isReady, setIsReady: setIsReady, setDeviceId: setDeviceId, setIsPaused: setIsPaused, setCurTrackId: setCurTrackId });
+    // const webplayer = WebPlayer({ access_token: access_token, isReady: isReady, setIsReady: setIsReady, setDeviceId: setDeviceId, setIsPaused: setIsPaused, setCurTrackId: setCurTrackId });
 
     // load the access token through Python's session if can
     if (!access_token) {
@@ -140,27 +140,43 @@ function App() {
 
     return (
       <section className="page">
-        <PlaylistSearch fetchPlaylists={fetchPlaylists} />
+        <div id="container">
+          <div id="header-block">
+            <SpotifyLogin />
+            <Logout logoutUser={logoutUser} /><br /><br />
+          </div>
 
-        <SpotifyLogin />
-        <Logout logoutUser={logoutUser} /><br /><br />
+          <div id="left-sidebar">
+            {/* Search */}
+            <PlaylistSearch fetchPlaylists={fetchPlaylists} />
+          </div>
 
-        <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
-        <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists}  />
-        <ShowTracks pid={pid} fetchTracks={fetchTracks} />
-        {tracks.length ? <ApplyFilters tracks={tracks} applyFilters={applyFilters}/> : null }
+          <div id="main-block">
+            <div id="filters">
+              <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
+              <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists}  />
+              <ShowTracks pid={pid} fetchTracks={fetchTracks} />
+              {tracks.length ? <ApplyFilters tracks={tracks} applyFilters={applyFilters}/> : null }
+            </div>
 
-        {pid && tracks.length ? <Tracks tracks={tracks} passingTracks={passingTracks} playlistName={playlistName}/> : null }
+            {/* Tracks */}
+            {pid && tracks.length ? <Tracks tracks={tracks} passingTracks={passingTracks} playlistName={playlistName}/> : null }
 
-        <ShowFeaturedPlaylists setPid={setPid} setPlaylistName={setPlaylistName}/>
-        {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} setPlaylistName={setPlaylistName}/> : null}
-        {playlists.length ? <ShowPlaylists playlists={playlists} fetchTracks={fetchTracks} setPid={setPid} setPlaylistName={setPlaylistName} /> : null}
-
-        {access_token && deviceId && tracks.length ? 
-              <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />
+            {/* Featured Playlists */}
+            <ShowFeaturedPlaylists setPid={setPid} setPlaylistName={setPlaylistName}/>
  
-              : null}
-              {/* add to spotplayer later playlist={playlist} */}
+            {/* Spotify Player
+            {access_token && deviceId && tracks.length ? 
+            <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />
+            : null}
+            {/* add to spotplayer later playlist={playlist} */}  */}
+          </div>
+
+          <div id="right-sidebar">
+            {/* User Playlists */}
+            {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} setPlaylistName={setPlaylistName}/> : null}
+          </div>
+        </div>
       </section>
     );
   }

@@ -22,14 +22,14 @@ function UserPlaylists(props) {
         const rowclasses = playlist.id;
         const playlistNum = index+1;
         return (
-      <div className={rowclasses} id={playlist.id} idx={index} key={playlist.id} onClick={e => { handleClick(e, playlist.id, playlist.name) }}>
-        <div className="playlist-number col-auto my-auto">{playlistNum}</div>
-        <div className="playlist-album col-auto my-auto"><img src={playlist.art} width="100" /></div>
-        <div className="playlist-trackinfo col my-auto">
-          <div className="playlist-title">{playlist.name}</div>
-          <div className="playlist-artist">{playlist.description}</div>
-        </div>
-     </div>
+          <div className={rowclasses} id={playlist.id} idx={index} key={playlist.id} onClick={e => { handleClick(e, playlist.id, playlist.name) }}>
+            <div className="playlist-number col-auto my-auto">{playlistNum}</div>
+            <div className="playlist-album col-auto my-auto"><img src={playlist.art} width="100" /></div>
+            <div className="playlist-trackinfo col my-auto">
+              <div className="playlist-title">{playlist.name}</div>
+              <div className="playlist-artist">{playlist.description}</div>
+            </div>
+          </div>
         )}
       )}
     </div>

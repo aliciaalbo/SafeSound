@@ -3,8 +3,10 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 import requests 
 
-class GetLyrics():
-    
+# FIXME: is this file even used???
+
+# get lyrics from Genius
+class GetLyrics():    
     def __init__(self, cid, secret, user_id, playlist_id, GENIUS_ACCESS_TOKEN):
         self.spotify_client_id = cid
         self.spotify_client_secret = secret
@@ -95,5 +97,7 @@ class GetLyrics():
             song_lyrics.append(lyrics)
         return song_lyrics
 
+# FIXME: hardcoded user id and playlist id
+# should be spotify user id for logged in user and their playlist id
 songs = GetLyrics(secret.cid, secret.secret, "e79265e6859d48e7", '5pHQKHf64r53yj6XyP0Fzk', GENIUS_ACCESS_TOKEN)
 song_lyrics = songs.get_lyrics()

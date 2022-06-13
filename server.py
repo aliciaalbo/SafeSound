@@ -5,7 +5,7 @@ from model import connect_to_db
 import crud
 import get_playlists
 # import model
-import json
+# import json
 import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
@@ -54,7 +54,7 @@ def parse_api():
         return get_playlists.get_user_playlists()
     elif do == "getTracks":
         pid = request.args.get('pid')
-        # print(pid)
+        print(pid)
         res = crud.search_for_tracks(pid)
         track_data = []
         #print(res)
@@ -63,7 +63,7 @@ def parse_api():
             try:
                 data['id'] = track['track']['id']
                 data['title'] = track['track']['name']
-                data['art'] = track['track']['album']['images'][0]['url']
+                data['art'] = track['track']['album']['images'][0]['url'] if track['track']['album']['images'] else ""
                 artist_name = ''
                 for artist in track['track']['artists']:
                     if artist_name == '':
@@ -72,6 +72,15 @@ def parse_api():
                         artist_name = artist_name + ', ' + artist['name']
                 data['artist'] = artist_name
                 data['explicit'] = track['track']['explicit']
+                # insert the track info if not already there
+                if data['id']:
+                    crud.save_track_info(
+                        track_id = data['id'],
+                        title = data['title'] or '',
+                        artist = data['artist'] or '',
+                        album_art = data['art'] or '',
+                        explicit = bool(data['explicit']),
+                    )
             except(TypeError):
                 continue  
             track_data.append(data)  
@@ -83,6 +92,7 @@ def parse_api():
         allow_no_lyrics = request.get_json().get('allowNoLyrics')
         all_tracks = request.get_json().get('tracks')
         passing_tracks = []
+        empty_word_list = ['nolyrics']
         for track in all_tracks:
             # flush=True is a cool trick to force printing to the Flask console so we can see data directly
             #print(track, flush=True)
@@ -98,12 +108,33 @@ def parse_api():
             #     if crud.apply_filter(lyrics_set, 1):
             #         passing_tracks.append(track)
             # else:
-            unique_lyrics = crud.find_song_lyrics(track['title'])
-            if unique_lyrics is not None:
-                crud.save_lyrics(unique_lyrics, track['id'], track['title'], track['artist'], track['art'])
-                lyricsset = crud.parse_lyrics(unique_lyrics)
-                if crud.apply_filter(lyricsset, 1):
-                    passing_tracks.append(track)
+            # reset each loop
+            word_list = None
+
+            # fetch lyrics if not already in db
+            if not crud.has_lyrics(track['id']):
+                # get lyrics from genius and write word counts to db
+                lyrics = crud.find_song_lyrics(track['title'], track['artist'])
+                if lyrics is not None:
+                    lyrics_words = crud.parse_lyrics(lyrics)
+                    word_counts = crud.count_words(lyrics_words)
+                    crud.save_lyrics(track['id'], lyrics_words, word_counts)
+                else:
+                    # store a flag entry so has_lyrics returns true
+                    word_counts = {'word': 'nolyrics', 'count': 1}
+                    crud.save_lyrics(track['id'], empty_word_list, word_counts)
+                word_list = word_counts.keys()
+
+            # fetch word list if lyrics have already been processed
+            if word_list is None:
+                word_list = crud.get_words_by_track_id(track['id'])
+
+            # check against filters or pass if plan
+            if word_list == empty_word_list and allow_no_lyrics is True:
+                passing_tracks.append(track)
+            elif crud.apply_filter(word_list, 1):
+                passing_tracks.append(track)
+
         return jsonify(passing_tracks)
 
 
