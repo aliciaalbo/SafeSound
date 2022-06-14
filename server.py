@@ -91,6 +91,7 @@ def parse_api():
         # need to send via POST because too much data for a GET string
         allow_no_lyrics = request.get_json().get('allowNoLyrics')
         all_tracks = request.get_json().get('tracks')
+        allowed_count = request.get_json().get('count')
         passing_tracks = []
         empty_word_list = ['nolyrics']
         for track in all_tracks:

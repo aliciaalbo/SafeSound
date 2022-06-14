@@ -1,16 +1,30 @@
 import React from 'react';
+import Form from 'react-bootstrap/Form';
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faSearch } from '@fortawesome/free-solid-svg-icons'
 
 function ApplyFilters(props){
-    const handleClick = (e) => {
+    const handleSubmit = (e) => {
         e.preventDefault();
-        props.applyFilters(props.tracks);
+        props.applyFilters(props.tracks, e.target.badWordCount.value);
+        
         
     };
+
     return (
-        <button variant="dark" className="btn btn-secondary" onClick={e => { handleClick(e) }}>
-            <span>apply filters</span>
+<div className="searchbar">
+  <Form variant="dark" className="search-form" onSubmit={e => { handleSubmit(e) }}>
+    <div className="input-group">
+      <input variant="dark" type="text" className="form-control" name="badWordCount" defaultValue="" placeholder="Input number of bad wrods per song" required />
+      <div className="input-group-append">
+        <button variant="dark" className="btn btn-secondary" type="submit">
+          <FontAwesomeIcon icon={faSearch} />
         </button>
-    )
+      </div>
+    </div>
+  </Form>
+</div>
+        );
 }
 
 

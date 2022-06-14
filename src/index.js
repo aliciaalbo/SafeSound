@@ -8,7 +8,7 @@ import SpotifyLogin from './spotifylogin';
 import ShowPlaylists from './playlists';
 import Tracks from './tracks';
 import Logout from "./logout";
-import Filters from "./filters";
+// import FilterLevel from "./filterLevel";
 import ShowTracks from './showTracks';
 import ApplyFilters from './applyFilters';
 import ShowFeaturedPlaylists from './spotifyFeaturedPlaylists';
