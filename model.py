@@ -47,7 +47,7 @@ class CachedLyrics(db.Model):
     track_id = db.Column(db.String, db.ForeignKey('tracks.track_id'))
     word = db.Column(db.String)
     word_count = db.Column(db.Integer)
-    lookup_idx = db.Index('lookup_idx', track_id, word, unique=True)
+    # lookup_idx = db.Index('lookup_idx', track_id, word, unique=True)
 
     # to store word counts - ideas: mapping table? 
     # have set of words, leave cached lyrics as is
@@ -69,8 +69,7 @@ class Tracks(db.Model):
     artist = db.Column(db.String)
     album_art = db.Column(db.String)
     explicit = db.Column(db.Boolean)
-    # caluclated column for total count of bad words here
-    # count = ??
+    bad_words_count = db.Column(db.Integer)
     
     db.relationship(CachedLyrics, backref='tracks')
 

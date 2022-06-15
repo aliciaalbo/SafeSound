@@ -8,7 +8,7 @@ function ShowPlaylists(props) {
         e.preventDefault();
         props.setPid(key)
         props.setPlaylistName(playlistName)
-        console.log("pid set")
+        console.log("show playlist set ", key)
         console.log(key)
     };
 

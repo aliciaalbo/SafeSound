@@ -102,6 +102,12 @@ code {
   font-size:1.2em;
 }
 
+.fail-playlist-row {
+  padding: .2em 0;
+  display: block;
+  background-color:#600;
+}
+
 .playlist-row {
   padding: .2em 0;
   display: block;

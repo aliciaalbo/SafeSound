@@ -1,3 +1,4 @@
+from xmlrpc.client import boolean
 from model import db, connect_to_db, User, Filter, CachedLyrics, Tracks
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
@@ -5,6 +6,7 @@ from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 import secret
 import lyricsgenius
 import re
+from bad_words import bad_words
 
 client_credentials_manager = SpotifyClientCredentials(client_id=secret.cid, client_secret=secret.secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
@@ -126,11 +128,12 @@ def count_words(lyrics: list):
     return word_counts
 
 def get_track_info(track_id):
-    return Tracks.query.filter(Tracks.track_id == track_id).first()
+    return Tracks.query.filter(Tracks.track_id == track_id).one_or_none()
 
-def save_track_info(track_id, title, artist, album_art, explicit):
+def insert_track_info(track_id, title, artist, album_art, explicit, bad_words_count):
     """saves track id and data from Spotify"""
-    if get_track_info(track_id):
+    track = get_track_info(track_id)
+    if track:
         return
 
     track = Tracks(
@@ -138,30 +141,74 @@ def save_track_info(track_id, title, artist, album_art, explicit):
         title = title,
         artist = artist,
         album_art = album_art,
-        explicit = explicit
+        explicit = explicit,
+        bad_words_count = bad_words_count
     )
     db.session.add(track)
     db.session.commit()
+    return track
+
+def update_bad_words_count(track_id, bad_words_count):
+    """updates track record with count of default bad words"""
+    track = get_track_info(track_id)
+    if track is not None:
+        # manipulating the objects does all the work
+        # you just alter the object and it will translate to SQL
+        # magicially on commit so:
+        # UPDATE tracks SET bad_words_count = bad_words_count WHERE track.id = track_id
+        track.bad_words_count = bad_words_count
+        # it only gets run on the DB after commit
+        # good ref: https://stackoverflow.com/a/18244144
+        db.session.commit()
+
+# Do I need to change/should I changethe way this works as well now that the index is there?
 
 def has_lyrics(track_id):
     return CachedLyrics.query.filter(CachedLyrics.track_id == track_id).first()
 
 def get_word_count(track_id, word):
-    return CachedLyrics.query.filter(CachedLyrics.track_id == track_id).filter(CachedLyrics.word == word).first()
+    return CachedLyrics.query.filter(CachedLyrics.track_id == track_id).filter(CachedLyrics.word == word).one_or_none()
 
-def save_lyrics(track_id: int, lyrics_words: list, word_counts: list):
+def save_lyrics(track_id: int, lyrics_words: list, word_counts: list, process_bad_words: bool):
     """ saves unique words in lyrics with a count of their occurences """
     if has_lyrics(track_id):
         return
+    bad_words_count = 0
     for word in lyrics_words:
+        if process_bad_words:
+            if word in bad_words:
+                bad_words_count += 1
         cached_lyric = CachedLyrics(
             track_id = track_id,
             word = word,
             word_count = word_counts[word],
         )
         db.session.add(cached_lyric)
-        db.session.commit()
+    db.session.commit()
+    if process_bad_words:
+        update_bad_words_count(track_id, bad_words_count)
 
+def get_words_of_lyrics(track) -> list:
+    word_list = None
+    empty_word_list = ['nolyrics']
+    # fetch word list if lyrics have already been processed
+    if has_lyrics(track.track_id):
+        word_list = get_words_by_track_id(track.track_id)
+    # fetch lyrics if not already in db
+    else:
+        # get lyrics from genius and write word counts to db
+        lyrics = find_song_lyrics(track.title, track.artist)
+        if lyrics is not None:
+            lyrics_words = parse_lyrics(lyrics)
+            word_counts = count_words(lyrics_words)
+            save_lyrics(track.track_id, lyrics_words, word_counts, process_bad_words=True)
+        else:
+            # store a flag entry so has_lyrics returns true
+            word_counts = {'nolyrics': 1}
+            save_lyrics(track.track_id, empty_word_list, word_counts, process_bad_words=False)
+        word_list = list(word_counts.keys())
+    return word_list
+    
 def parse_lyrics(lyrics: str):
     """ replace line breaks and periods with spaces """
     lyrics = lyrics.replace('\n', ' ')
@@ -178,38 +225,38 @@ def parse_lyrics(lyrics: str):
 
 # abovie to last comment to go in Lyrics class
 
-def build_filter(file):
-    """opens and parses file, removes phrases, returns single words as string separated by line breaks"""
-    file_string = open(file).read()
-    words = file_string.split(",")
-    single_words = []
-    for word in words:
-        check_word = word.strip()
-        if " " not in check_word:
-            single_words.append(check_word)
-    single_word_string = "\n".join(single_words)
-    return single_word_string
+# def build_filter(file):
+#     """opens and parses file, removes phrases, returns single words as string separated by line breaks"""
+#     file_string = open(file).read()
+#     words = file_string.split(",")
+#     single_words = []
+#     for word in words:
+#         check_word = word.strip()
+#         if " " not in check_word:
+#             single_words.append(check_word)
+#     single_word_string = "\n".join(single_words)
+#     return single_word_string
 
-def create_default_filter(word_list, filter_name):
-    """accepts list of words and creates filter"""
-    # " ".join(words)
-    filter = Filter(
-        word_list = word_list,
-        filter_name = filter_name
-    )
+# def create_default_filter(word_list, filter_name):
+#     """accepts list of words and creates filter"""
+#     # " ".join(words)
+#     filter = Filter(
+#         word_list = word_list,
+#         filter_name = filter_name
+#     )
 
-    db.session.add(filter)
-    db.session.commit()
+#     db.session.add(filter)
+#     db.session.commit()
 
-def create_user_filter(user_id, filter_name):
-    """creates empty filter"""
-    filter = Filter(
-        user_id = user_id,
-        filter_name = filter_name
-    )
+# def create_user_filter(user_id, filter_name):
+#     """creates empty filter"""
+#     filter = Filter(
+#         user_id = user_id,
+#         filter_name = filter_name
+#     )
 
-    db.session.add(filter)
-    db.session.commit()
+#     db.session.add(filter)
+#     db.session.commit()
 
 # def get_filter_words_by_id(filter_id):
 #     """gets word list associated with each filter id"""
@@ -217,14 +264,18 @@ def create_user_filter(user_id, filter_name):
 
 
 # refactor to do counts
+
 def apply_filter(unique_words: list, filter_id: int):
     """checks for exact match of excluded terms, returns boolean"""
-    check_words = db.session.query(Filter.word_list).filter(Filter.filter_id == filter_id).all()
-    fail_words = {}
-    for word in check_words:
-        if word in unique_words:
-            return False
-    return True
+    # index is internal to how the DB stores data
+    # it gets used automatically if you filter on the fields in the index
+    check_words = Filter.query(Filter.word_list).filter(Filter.filter_id == filter_id).one()
+
+    # fail_words = {}
+    # for word in check_words:
+    #     if word in unique_words:
+    #         return False
+    # return True
 
 
 def save_status(track_id, filter_id):
@@ -281,7 +332,7 @@ def search_for_user_playlists():
     # return True
     return response
 
-def search_for_tracks(pid):
+def fetch_playlist_tracks_data(pid):
     """get song titles and id's from Spotify playlist"""
     response = spotify.playlist_items(pid
                                     # fields='items.track.id,items.track.name,items.track.artists,items.track.album,total',

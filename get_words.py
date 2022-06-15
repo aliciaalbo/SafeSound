@@ -1,4 +1,4 @@
-from youtube_blacklist import words
+from bad_words import words
 
 
 

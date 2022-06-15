@@ -20,19 +20,19 @@ import './index.css';
 
 function App() {
     // stickyState only works for strings, atm
-    const [playlistSearchTerm, setPlaylistSearchTerm] = useStickyState("", "playlistSearchTerm");
-    const [playlists, setPlaylists] = useStickyState("", "playlists");
-    const [playstate, setPlaystate] = useStickyState("", "playstate");
-    const [access_token, setAccessToken] = useStickyState("", "access_token");
+    const [playlistSearchTerm, setPlaylistSearchTerm] = useState("", "playlistSearchTerm");
+    const [playlists, setPlaylists] = useState("", "playlists");
+    const [playstate, setPlaystate] = useState("", "playstate");
+    const [access_token, setAccessToken] = useState("", "access_token");
     const [name, setName] = useStickyState("", "name");
     const [email, setEmail] = useStickyState("", "email");
     const [tracks, setTracks] = useState([], "tracks")
-    const [pid, setPid] = useStickyState("", "pid");
+    const [pid, setPid] = useState("", "pid");
     const [playlistName, setPlaylistName] = useState("", "playlistName")
-    const [failingTracks, setFailingTracks] = useState([]);
+    const [failingTrackIds, setFailingTrackIds] = useState([]);
     const [passingTracks, setPassingTracks] = useState([])
     const [allowNoLyrics, setAllowNoLyrics] = useState(false, "allowNoLyrics")
-    const [userPlaylists, setUserPlaylists] = useStickyState("", "userPlaylists")
+    const [userPlaylists, setUserPlaylists] = useState("", "userPlaylists")
 
 
     // player state items we don't want to persist
@@ -102,11 +102,11 @@ function App() {
       setPlaylists("");
     }
 
-    const applyFilters = () => {
-     
+    const applyFilters = (tracks, allowedCount) => {
       const params = {
-        tracks: tracks,
-        allowNoLyrics: allowNoLyrics
+        track_ids: tracks.map((track) => track.id),
+        allowNoLyrics: allowNoLyrics,
+        allowed_count: allowedCount,
       };
       fetch("/api?do=filterTracks",
         {
@@ -118,7 +118,7 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
         console.log(res)
-        setPassingTracks(res)
+        setFailingTrackIds(res)
       })
     }
 
@@ -160,7 +160,7 @@ function App() {
             </div>
 
             {/* Tracks */}
-            {pid && tracks.length ? <Tracks tracks={tracks} passingTracks={passingTracks} playlistName={playlistName}/> : null }
+            {pid && tracks.length ? <Tracks tracks={tracks} failingTrackIds={failingTrackIds} playlistName={playlistName}/> : null }
 
             {/* Featured Playlists */}
             <ShowFeaturedPlaylists setPid={setPid} setPlaylistName={setPlaylistName}/>
@@ -169,12 +169,17 @@ function App() {
             {access_token && deviceId && tracks.length ? 
             <SpotPlayer playbackToggle={playbackToggle} setPlaybackToggle={setPlaybackToggle} access_token={access_token} webplayer={webplayer} deviceId={deviceId} playstate={playstate} isPaused={isPaused} curTrackId={curTrackId} />
             : null}
-            {/* add to spotplayer later playlist={playlist} */}  */}
+            {/* add to spotplayer later playlist={playlist} */} 
           </div>
 
           <div id="right-sidebar">
             {/* User Playlists */}
-            {userPlaylists.length ? <UserPlaylists userPlaylists={userPlaylists} setPid={setPid} setPlaylistName={setPlaylistName}/> : null}
+            {userPlaylists.length && <UserPlaylists
+              userPlaylists={userPlaylists}
+              setPid={setPid}
+              setPlaylistName={setPlaylistName}
+              fetchTracks={fetchTracks}
+            />}
           </div>
         </div>
       </section>

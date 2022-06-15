@@ -55,10 +55,9 @@ def parse_api():
     elif do == "getTracks":
         pid = request.args.get('pid')
         print(pid)
-        res = crud.search_for_tracks(pid)
+        res = crud.fetch_playlist_tracks_data(pid)
         track_data = []
-        #print(res)
-        for i, track in enumerate(res['items']):
+        for track in res['items']:
             data = {}
             try:
                 data['id'] = track['track']['id']
@@ -72,29 +71,36 @@ def parse_api():
                         artist_name = artist_name + ', ' + artist['name']
                 data['artist'] = artist_name
                 data['explicit'] = track['track']['explicit']
+                data['bad_words_count'] = -1
                 # insert the track info if not already there
                 if data['id']:
-                    crud.save_track_info(
+                    track = crud.insert_track_info(
                         track_id = data['id'],
                         title = data['title'] or '',
                         artist = data['artist'] or '',
                         album_art = data['art'] or '',
                         explicit = bool(data['explicit']),
+                        bad_words_count = -1,
                     )
+                    if track:
+                        # get lyrics while we are here
+                        crud.get_words_of_lyrics(track)
+
+
             except(TypeError):
                 continue  
             track_data.append(data)  
-        #print(track_data)
+        # print(track_data)
         return jsonify(track_data)
     elif do == "filterTracks":
         # get_json() is required for parsing JSON sent via POST instead of GET
         # need to send via POST because too much data for a GET string
         allow_no_lyrics = request.get_json().get('allowNoLyrics')
-        all_tracks = request.get_json().get('tracks')
-        allowed_count = request.get_json().get('count')
-        passing_tracks = []
+        all_tracks_ids = request.get_json().get('track_ids')
+        allowed_count = int(request.get_json().get('allowed_count'))
+        failing_track_ids = []
         empty_word_list = ['nolyrics']
-        for track in all_tracks:
+        for track_id in all_tracks_ids:
             # flush=True is a cool trick to force printing to the Flask console so we can see data directly
             #print(track, flush=True)
             # if filter_cache_check(track['id'], 1):
@@ -109,34 +115,22 @@ def parse_api():
             #     if crud.apply_filter(lyrics_set, 1):
             #         passing_tracks.append(track)
             # else:
-            # reset each loop
-            word_list = None
-
-            # fetch lyrics if not already in db
-            if not crud.has_lyrics(track['id']):
-                # get lyrics from genius and write word counts to db
-                lyrics = crud.find_song_lyrics(track['title'], track['artist'])
-                if lyrics is not None:
-                    lyrics_words = crud.parse_lyrics(lyrics)
-                    word_counts = crud.count_words(lyrics_words)
-                    crud.save_lyrics(track['id'], lyrics_words, word_counts)
+            track = crud.get_track_info(track_id)
+            if track is not None:
+                # this is slow because it loads lyrics from genius, parses and saves the word counts and updates bad_words_count
+                word_list = crud.get_words_of_lyrics(track)
+                # check against filters or pass if plan
+                if word_list == empty_word_list and allow_no_lyrics is True:
+                    # passing_track_ids.append(track)
+                    pass
+                # -1 means unprocessed, fail by default
+                elif track.bad_words_count != -1 and track.bad_words_count <= allowed_count:
+                    # passing_track_ids.append(track)
+                    pass
                 else:
-                    # store a flag entry so has_lyrics returns true
-                    word_counts = {'word': 'nolyrics', 'count': 1}
-                    crud.save_lyrics(track['id'], empty_word_list, word_counts)
-                word_list = word_counts.keys()
+                    failing_track_ids.append(track_id)
 
-            # fetch word list if lyrics have already been processed
-            if word_list is None:
-                word_list = crud.get_words_by_track_id(track['id'])
-
-            # check against filters or pass if plan
-            if word_list == empty_word_list and allow_no_lyrics is True:
-                passing_tracks.append(track)
-            elif crud.apply_filter(word_list, 1):
-                passing_tracks.append(track)
-
-        return jsonify(passing_tracks)
+        return jsonify(failing_track_ids)
 
 
         # pass        

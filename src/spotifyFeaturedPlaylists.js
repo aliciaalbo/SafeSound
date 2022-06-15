@@ -38,8 +38,7 @@ function ShowFeaturedPlaylists(props){
       e.preventDefault();
       props.setPid(playlistId)
       props.setPlaylistName(playlistName)
-      console.log("pid set")
-      console.log(playlistId)
+      console.log("featured playlist pid set ", playlistId)
   };
 
   const handleDoubleClick = (e) => {
