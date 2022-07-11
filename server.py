@@ -98,6 +98,7 @@ def parse_api():
         allow_no_lyrics = request.get_json().get('allowNoLyrics')
         all_tracks_ids = request.get_json().get('track_ids')
         allowed_count = int(request.get_json().get('allowed_count'))
+        passing_track_ids = []
         failing_track_ids = []
         empty_word_list = ['nolyrics']
         for track_id in all_tracks_ids:
@@ -131,8 +132,26 @@ def parse_api():
                     failing_track_ids.append(track_id)
 
         return jsonify(failing_track_ids)
-
-
+    elif do == "savePlaylist":
+        all_tracks = request.get_json().get('track_ids')
+        failing_track_ids = request.get_json().get('failing_track_ids')
+        track_ids = []
+        for track in all_tracks:
+            if track not in failing_track_ids:
+                track_ids.append(track)
+        access_token = request.args.get('access_token')
+        username = request.args.get('username')
+        title = request.args.get('title')
+        playlist_name = f"{username}'s clean {title}"
+        if (access_token):
+            user = crud.get_user_by_access_token(access_token)
+            sp = spotipy.Spotify(auth_manager=auth_manager)     
+            plist = sp.user_playlist_create(user.spotify_id, playlist_name)
+            print(plist)
+            sp.playlist_add_items(plist['id'], trackids)
+            print("Playlist added: ", plist['id'])
+            return jsonify(plist['id'])
+        return ""           
         # pass        
 
 

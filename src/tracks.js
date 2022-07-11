@@ -3,6 +3,9 @@ import React from 'react';
 function Tracks(props) {
   return (
     <div id="show-tracks" className="tracks">
+      {/* I want to clear the tracks while it's loading or not have
+       the name update until the tracks are loaded what is the 
+       best way to do it? I tried a delay but that sucks as is stupid */}
       <div className="tracks-header">{props.playlistName}</div>
       {props.tracks.map((track, index) => {
         const isFail = props.failingTrackIds.some(failingTrackId => failingTrackId == track.id)

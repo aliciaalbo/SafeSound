@@ -17,6 +17,7 @@ import ShowUserPlaylists from './showUserPlaylists';
 import UserPlaylists from './userPlaylists';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
+import SavePlaylist from './savePlaylist';
 
 function App() {
     // stickyState only works for strings, atm
@@ -119,6 +120,7 @@ function App() {
       .then((res) => {
         console.log(res)
         setFailingTrackIds(res)
+        setPassingTracks(res)
       })
     }
 
@@ -153,6 +155,7 @@ function App() {
 
           <div id="main-block">
             <div id="filters">
+              {access_token && failingTrackIds ? <SavePlaylist tracks={tracks} failingTrackIs={failingTrackIds} access_token={access_token} username={name} playlistName={playlistName} pid={pid} setPid={setPid} setIsError={setIsError} /> : null}
               <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
               <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists}  />
               <ShowTracks pid={pid} fetchTracks={fetchTracks} />

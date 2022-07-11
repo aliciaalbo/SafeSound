@@ -4,13 +4,13 @@ import React from 'react';
 function SavePlaylist(props) {
     const handleClick = (e) => {
         e.preventDefault();
-        const tracks = props.playlist.map(t => t.trackid);
+        const tracks = props.tracks;
         props.setPid("");
         props.setIsError(false);
         // if (props.pid) {
         //     props.setIsError(true);
         // } else {
-            fetch(`/api?do=savePlaylist&access_token=${encodeURIComponent(props.access_token)}&trackids=${encodeURIComponent(tracks)}&username=${props.username}&weather=${props.weather}&city=${props.city}`)
+            fetch(`/api?do=savePlaylist&access_token=${encodeURIComponent(props.access_token)}&trackids=${encodeURIComponent(tracks)}&failingTrackIds=${encodeURIComponent(props.failingTrackIds)}&username=${props.username}&title=${props.title}`)
             .then((res) => res.json())
             .then((pid) => {
                 console.log("New playlist ID: ", pid);
