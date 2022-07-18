@@ -6,10 +6,9 @@ import React, {useState} from 'react';
 function ShowPlaylists(props) {
     const handleClick = (e, key, playlistName) => {
         e.preventDefault();
+        console.log("showPlaylists pid: ", key)
         props.setPid(key)
         props.setPlaylistName(playlistName)
-        console.log("show playlist set ", key)
-        console.log(key)
     };
 
     const handleDoubleClick = (e) => {

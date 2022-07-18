@@ -30,11 +30,12 @@ function App() {
     const [tracks, setTracks] = useState([], "tracks")
     const [pid, setPid] = useState("", "pid");
     const [playlistName, setPlaylistName] = useState("", "playlistName")
+    // const [heldPlaylistName, setHeldPlaylistName] = useState("", "heldPlaylistName")
     const [failingTrackIds, setFailingTrackIds] = useState([]);
     const [passingTracks, setPassingTracks] = useState([])
     const [allowNoLyrics, setAllowNoLyrics] = useState(false, "allowNoLyrics")
     const [userPlaylists, setUserPlaylists] = useState("", "userPlaylists")
-
+    const [isProcessing, setIsProcessing] = useState(false)
 
     // player state items we don't want to persist
     const [isReady, setIsReady] = useState("");
@@ -58,7 +59,7 @@ function App() {
       .then((response) => response.json())
       .then((data) => {
         if (data) {
-          console.log(data)
+          console.log("access token data: ", data)
           setAccessToken(data.access_token);
           setName(data.name);
           setEmail(data.email);
@@ -67,18 +68,18 @@ function App() {
         }
       })
       .catch((err) => {
-        console.log("ERROR: ",err);
+        console.log("access token ERROR: ", err);
       });
     }
 
     const fetchPlaylists = (playlistSearchTerm) => {
       setPlaylistSearchTerm(playlistSearchTerm);
-      setTracks("");
+      setTracks([]);
 
       fetch(`/api?do=getPlaylists&term=${encodeURIComponent(playlistSearchTerm)}`)
       .then((res) => res.json())
       .then((res) => {
-              console.log(res)  
+              console.log("fetchPlaylists res: ", res)  
               setPlaylists(res)
           })
     }
@@ -87,26 +88,37 @@ function App() {
       fetch(`/api?do=getUserPlaylists`)
       .then((res) => res.json())
       .then((res) => {
-        console.log(res)
+        console.log("fetchUserPlaylists res: ", res)
         setUserPlaylists(res)
       })
     }
 
-    const fetchTracks = (pid) => {
+    const fetchTracks = (pid, playlistName) => {
+      setPlaylistName(playlistName)
+      setIsProcessing(true)
       setPid(pid);
+      // clear current track list
+      setTracks([]);
+      setPassingTracks([]);
+      setFailingTrackIds([]);
       fetch(`/api?do=getTracks&pid=${encodeURIComponent(pid)}`)
       .then((res) => res.json())
       .then((res) => {
-              console.log(res)  
+              console.log("fetchTracks res: ", res)  
+              // setPlaylistName(playlistName);
               setTracks(res)
-            })
-      setPlaylists("");
+              setIsProcessing(false)
+              // setPlaylistName(playlistName);
+            });
+      // setPlaylists("");
+      // setPlaylistName(playlistName);
+  
     }
 
     const applyFilters = (tracks, allowedCount) => {
       const params = {
         track_ids: tracks.map((track) => track.id),
-        allowNoLyrics: allowNoLyrics,
+        allow_no_lyrics: allowNoLyrics,
         allowed_count: allowedCount,
       };
       fetch("/api?do=filterTracks",
@@ -118,7 +130,7 @@ function App() {
       )
       .then((res) => res.json())
       .then((res) => {
-        console.log(res)
+        console.log("applyFilters res: ", res)
         setFailingTrackIds(res)
         setPassingTracks(res)
       })
@@ -135,7 +147,7 @@ function App() {
           setEmail("");
         })
         .catch((err) => {
-            console.log("ERROR: ",err);
+            console.log("logoutUser ERROR: ",err);
         });
       }
     };
@@ -158,15 +170,31 @@ function App() {
               {access_token && failingTrackIds ? <SavePlaylist tracks={tracks} failingTrackIs={failingTrackIds} access_token={access_token} username={name} playlistName={playlistName} pid={pid} setPid={setPid} setIsError={setIsError} /> : null}
               <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
               <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists}  />
-              <ShowTracks pid={pid} fetchTracks={fetchTracks} />
+              {pid ? (
+                <ShowTracks
+                  pid={pid}
+                  fetchTracks={fetchTracks}
+                  playlistName={playlistName}
+                />
+              ) : null}
               {tracks.length ? <ApplyFilters tracks={tracks} applyFilters={applyFilters}/> : null }
             </div>
 
             {/* Tracks */}
-            {pid && tracks.length ? <Tracks tracks={tracks} failingTrackIds={failingTrackIds} playlistName={playlistName}/> : null }
-
+            {pid && playlistName ?
+              <Tracks
+                tracks={tracks}
+                failingTrackIds={failingTrackIds}
+                playlistName={playlistName}
+                isProcessing={isProcessing}
+              /> : null }
+  
             {/* Featured Playlists */}
-            <ShowFeaturedPlaylists setPid={setPid} setPlaylistName={setPlaylistName}/>
+            <ShowFeaturedPlaylists
+              setPid={setPid}
+              setPlaylistName={setPlaylistName}
+              setTracks={setTracks}
+            />
  
             {/* Spotify Player
             {access_token && deviceId && tracks.length ? 
@@ -177,12 +205,22 @@ function App() {
 
           <div id="right-sidebar">
             {/* User Playlists */}
-            {userPlaylists.length && <UserPlaylists
-              userPlaylists={userPlaylists}
-              setPid={setPid}
-              setPlaylistName={setPlaylistName}
-              fetchTracks={fetchTracks}
-            />}
+            {userPlaylists.length ? (
+              <UserPlaylists
+                userPlaylists={userPlaylists}
+                setPid={setPid}
+                setPlaylistName={setPlaylistName}
+                fetchTracks={fetchTracks}
+              />
+            ) : null}
+            {playlists.length ? (
+              <ShowPlaylists
+                playlists={playlists}
+                setPid={setPid}
+                setPlaylistName={setPlaylistName}
+                fetchTracks={fetchTracks}
+              />
+            ) : null}
           </div>
         </div>
       </section>

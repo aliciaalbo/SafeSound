@@ -37,7 +37,10 @@ function ShowFeaturedPlaylists(props){
   const handleClick = (e, playlistId, playlistName) => {
       e.preventDefault();
       props.setPid(playlistId)
+      // props.setPlaylistName(playlistName)
       props.setPlaylistName(playlistName)
+      // maybe should trigger loading automatically?
+      props.setTracks([])
       console.log("featured playlist pid set ", playlistId)
   };
 
@@ -49,13 +52,13 @@ function ShowFeaturedPlaylists(props){
     <div id="featured-playlists" className="playlist">
       <div className="playlist-header">Featured Playlists</div>
       <div>
-  <div className='container-fluid'>
+  {/* <div className='container-fluid'>
     <div className="row title" style={{ marginBottom: "20px" }} >
       <div className="col-sm-12 btn btn-warning">
         Spotify Featured Playlists
       </div>
     </div>
-  </div>
+  </div> */}
     <Carousel fade={true}>
     {featuredPlaylists.map((playlist, index) => {
       return (

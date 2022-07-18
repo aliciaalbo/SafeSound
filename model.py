@@ -70,6 +70,7 @@ class Tracks(db.Model):
     album_art = db.Column(db.String)
     explicit = db.Column(db.Boolean)
     bad_words_count = db.Column(db.Integer)
+    instrumentalness = db.Column(db.Float)
     
     db.relationship(CachedLyrics, backref='tracks')
 

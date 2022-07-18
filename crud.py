@@ -31,7 +31,7 @@ def logout(email):
     """logs user out of spotify by deleting their tokens"""
     if (email):
         user = get_user_by_email(email)
-        print(user)
+        print("logout user: ", user)
         update_access_token(user.email, "")
         update_refresh_token(user.email, "")
         db.session.add(user)
@@ -130,11 +130,15 @@ def count_words(lyrics: list):
 def get_track_info(track_id):
     return Tracks.query.filter(Tracks.track_id == track_id).one_or_none()
 
-def insert_track_info(track_id, title, artist, album_art, explicit, bad_words_count):
+def insert_track_info(track_id, title, artist, album_art, explicit, bad_words_count, instrumentalness):
     """saves track id and data from Spotify"""
     track = get_track_info(track_id)
     if track:
-        return
+        if track.intrumentalness == False:
+            update_instrumentalness(track_id, instrumentalness)
+            return 
+        else:
+            return
 
     track = Tracks(
         track_id = track_id,
@@ -143,10 +147,19 @@ def insert_track_info(track_id, title, artist, album_art, explicit, bad_words_co
         album_art = album_art,
         explicit = explicit,
         bad_words_count = bad_words_count
+        instrumentalness = instrumentalness
     )
     db.session.add(track)
     db.session.commit()
     return track
+
+def update_instrumentalness(track_id, instrumentalness):
+    """updates track info with instrumentalness"""
+    track = get_track_info(track_id)
+    if track is not None:
+        track.instrumentalness = instrumentalness
+        db.session.commit()
+
 
 def update_bad_words_count(track_id, bad_words_count):
     """updates track record with count of default bad words"""
@@ -164,30 +177,41 @@ def update_bad_words_count(track_id, bad_words_count):
 # Do I need to change/should I changethe way this works as well now that the index is there?
 
 def has_lyrics(track_id):
-    return CachedLyrics.query.filter(CachedLyrics.track_id == track_id).first()
+    if CachedLyrics.query.filter(CachedLyrics.track_id == track_id).one_or_none():
+        return True
+    return False
 
-def get_word_count(track_id, word):
-    return CachedLyrics.query.filter(CachedLyrics.track_id == track_id).filter(CachedLyrics.word == word).one_or_none()
+# not called
+# def get_word_count(track_id, word):
+#     return CachedLyrics.query.filter(CachedLyrics.track_id == track_id).filter(CachedLyrics.word == word).one_or_none()
 
 def save_lyrics(track_id: int, lyrics_words: list, word_counts: list, process_bad_words: bool):
     """ saves unique words in lyrics with a count of their occurences """
     if has_lyrics(track_id):
         return
     bad_words_count = 0
+    cached_words = []
     for word in lyrics_words:
         if process_bad_words:
             if word in bad_words:
                 bad_words_count += 1
-        cached_lyric = CachedLyrics(
+        cached_words.append(dict(
             track_id = track_id,
             word = word,
-            word_count = word_counts[word],
-        )
-        db.session.add(cached_lyric)
+            word_count = word_counts[word]
+        ))
+        # cached_lyric = CachedLyrics(
+        #     track_id = track_id,
+        #     word = word,
+        #     word_count = word_counts[word],
+        # )
+        # db.session.add(cached_lyric)
+    db.session.bulk_insert_mappings(CachedLyrics, cached_words)
     db.session.commit()
     if process_bad_words:
         update_bad_words_count(track_id, bad_words_count)
 
+# returns the words for a track - if not already in system, loads lyrics, parses and adds them
 def get_words_of_lyrics(track) -> list:
     word_list = None
     empty_word_list = ['nolyrics']
@@ -293,12 +317,6 @@ def save_status(track_id, filter_id):
 #     """returns cached pass/fail status of filter applied to track"""
 #     return CachedResult.query(CachedResult.pass_status).filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id)
 
-def lyrics_cache_check_by_id(track_id):
-    """checks if lyrics are saved"""
-    if CachedLyrics.query.filter(CachedLyrics.track_id == track_id).first():
-        return True
-    return False
-
 def get_words_by_track_id(track_id):
     """retrieves cached_lyrics from db"""
     response = db.session.query(CachedLyrics.word).filter(CachedLyrics.track_id == track_id).all()
@@ -312,7 +330,7 @@ def search_for_playlists(search_term):
 
 def search_for_featured_playlists():
     """returns top 5 playlists featured by spotify"""
-    response = spotify.featured_playlists(limit=5)
+    response = spotify.featured_playlists(limit=20)
     return response
 
 def search_for_user_playlists():

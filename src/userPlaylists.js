@@ -2,12 +2,11 @@ import React, {useState} from 'react';
 
 
 function UserPlaylists(props) {
-    const handleClick = (e, key, playlistName) => {
+    const handleClick = (e, pid, playlistName) => {
         e.preventDefault();
         // props.setPid(key)
-        props.setPlaylistName(playlistName)
-        props.fetchTracks(key)
-        console.log("user playlist set ", key)
+        props.fetchTracks(pid, playlistName)
+        console.log("user playlist set: ", pid)
     };
 
     const handleDoubleClick = (e) => {

@@ -7,17 +7,14 @@ function SavePlaylist(props) {
         const tracks = props.tracks;
         props.setPid("");
         props.setIsError(false);
-        // if (props.pid) {
-        //     props.setIsError(true);
-        // } else {
-            fetch(`/api?do=savePlaylist&access_token=${encodeURIComponent(props.access_token)}&trackids=${encodeURIComponent(tracks)}&failingTrackIds=${encodeURIComponent(props.failingTrackIds)}&username=${props.username}&title=${props.title}`)
+            fetch(`/api?do=savePlaylist&access_token=${encodeURIComponent(props.access_token)}&track_ids=${encodeURIComponent(tracks)}&failingTrackIds=${encodeURIComponent(props.failingTrackIds)}&username=${props.username}&title=${props.title}`)
             .then((res) => res.json())
             .then((pid) => {
-                console.log("New playlist ID: ", pid);
+                console.log("SavePlaylist new pid: ", pid);
                 props.setPid(pid)
             })
             .catch((err) => {
-                console.log("ERROR: ",err);
+                console.log("SavePlaylist ERROR: ",err);
                 props.setIsError(true)
             });
         // }

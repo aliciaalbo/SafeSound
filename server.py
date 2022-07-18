@@ -53,10 +53,15 @@ def parse_api():
     elif do == "getUserPlaylists":
         return get_playlists.get_user_playlists()
     elif do == "getTracks":
-        pid = request.args.get('pid')
-        print(pid)
-        res = crud.fetch_playlist_tracks_data(pid)
         track_data = []
+        pid = request.args.get('pid')
+        if pid is None or pid == "":
+            return jsonify([])
+        print("getTracks pid: ", pid)
+        res = crud.fetch_playlist_tracks_data(pid)
+        # bail if Spotify loading error
+        if res is None or "items" not in res:
+            return jsonify([])
         for track in res['items']:
             data = {}
             try:
@@ -83,24 +88,22 @@ def parse_api():
                         bad_words_count = -1,
                     )
                     if track:
-                        # get lyrics while we are here
+                        # fetch and store the lyrics if not in db
                         crud.get_words_of_lyrics(track)
-
-
+                track_data.append(data) 
             except(TypeError):
-                continue  
-            track_data.append(data)  
+                continue   
         # print(track_data)
         return jsonify(track_data)
     elif do == "filterTracks":
         # get_json() is required for parsing JSON sent via POST instead of GET
         # need to send via POST because too much data for a GET string
-        allow_no_lyrics = request.get_json().get('allowNoLyrics')
         all_tracks_ids = request.get_json().get('track_ids')
+        allow_no_lyrics = request.get_json().get('allow_no_lyrics')
         allowed_count = int(request.get_json().get('allowed_count'))
         passing_track_ids = []
         failing_track_ids = []
-        empty_word_list = ['nolyrics']
+        EMPTY_WORD_LIST = ['nolyrics']
         for track_id in all_tracks_ids:
             # flush=True is a cool trick to force printing to the Flask console so we can see data directly
             #print(track, flush=True)
@@ -109,23 +112,17 @@ def parse_api():
             #     if crud.get_cached_results(track['id'], 1):
             #         passing_tracks.append(track)
             #         print("appended")
-            # elif crud.lyrics_cache_check_by_id(track['id']):
-            #     lyrics = crud.get_lyrics_by_track_id(track['id'])
-            #     lyrics_set = crud.parse_lyrics(lyrics)
-            #     print("lyrics match found")
-            #     if crud.apply_filter(lyrics_set, 1):
-            #         passing_tracks.append(track)
-            # else:
             track = crud.get_track_info(track_id)
             if track is not None:
                 # this is slow because it loads lyrics from genius, parses and saves the word counts and updates bad_words_count
-                word_list = crud.get_words_of_lyrics(track)
+                # word_list = crud.get_words_of_lyrics(track)
                 # check against filters or pass if plan
-                if word_list == empty_word_list and allow_no_lyrics is True:
+                """ WORD COUNT SHOULD BE A FLAG ON THE TRACK SO THIS FILTER WORKS WITHOUT LOADING ALL WORDS """
+                # if word_list == EMPTY_WORD_LIST and allow_no_lyrics is True:
                     # passing_track_ids.append(track)
-                    pass
-                # -1 means unprocessed, fail by default
-                elif track.bad_words_count != -1 and track.bad_words_count <= allowed_count:
+                    # pass
+                # must have a word count (-1 means unprocessed, fail by default) and below threshold
+                if track.bad_words_count != -1 and track.bad_words_count <= allowed_count:
                     # passing_track_ids.append(track)
                     pass
                 else:
@@ -147,8 +144,8 @@ def parse_api():
             user = crud.get_user_by_access_token(access_token)
             sp = spotipy.Spotify(auth_manager=auth_manager)     
             plist = sp.user_playlist_create(user.spotify_id, playlist_name)
-            print(plist)
-            sp.playlist_add_items(plist['id'], trackids)
+            print("server savePlaylist route, user playlist: ", plist)
+            sp.playlist_add_items(plist['id'], track_ids)
             print("Playlist added: ", plist['id'])
             return jsonify(plist['id'])
         return ""           

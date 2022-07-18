@@ -3,8 +3,7 @@ import React from 'react';
 function ShowTracks(props){
     const handleClick = (e) => {
         e.preventDefault();
-        props.fetchTracks(props.pid);
-        
+        props.fetchTracks(props.pid, props.playlistName);        
     };
     return (
         <button variant="dark" className="btn btn-secondary" onClick={e => { handleClick(e) }}>
