@@ -1,5 +1,4 @@
 from flask_sqlalchemy import SQLAlchemy
-import psycopg2
 import secret
 
 db = SQLAlchemy()
@@ -75,7 +74,8 @@ class Tracks(db.Model):
     db.relationship(CachedLyrics, backref='tracks')
 
 
-def connect_to_db(flask_app, db_uri='postgresql:///safesound', echo=True):
+# echo = True to show DB calls
+def connect_to_db(flask_app, db_uri='postgresql:///safesound', echo=False):
     # ignoring passed-in db_uri so it works on the server
     flask_app.config['SQLALCHEMY_DATABASE_URI'] = secret.db_uri
     flask_app.config['SQLALCHEMY_ECHO'] = echo

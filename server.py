@@ -1,5 +1,6 @@
 # from crud import filter_cache_check
 from flask import (Flask, render_template, request, session, redirect, jsonify)
+from flask_session import Session
 from jinja2 import StrictUndefined
 from model import connect_to_db
 import crud
@@ -16,13 +17,15 @@ app = Flask(__name__)
 app.secret_key = secret.secret_key
 app.jinja_env.undefined = StrictUndefined
 
-connect_to_db(app)
+Session(connect_to_db(app))
 
 SPOTIPY_REDIRECT_URI = secret.spotifyredirect
 client_credentials_manager = SpotifyClientCredentials(client_id=secret.cid, client_secret=secret.secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
 SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
-auth_manager = SpotifyOAuth(secret.cid, secret.secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
+# copied from: https://github.com/plamere/spotipy/blob/master/examples/app.py
+# cache_handler = spotipy.cache_handler.FlaskSessionCacheHandler(session)
+auth_manager = SpotifyOAuth(secret.cid, secret.secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None)
 
 @app.route('/')
 def show_homepage():
@@ -34,10 +37,14 @@ def parse_api():
     """catches and parses data from external api call and runs appropriate functions"""
     do = request.args.get('do')
     if do == "getInfo":
-        access_token = session.get('access_token')
-        if (access_token):
-            user = crud.get_user_by_access_token(session.get('access_token'))
-            return jsonify({ 'access_token': access_token, 'email': user.email, 'name': user.name })
+        if auth_manager.validate_token(session.get('token_info')):
+            access_token = session.get('access_token')
+            if (access_token):
+                user = crud.get_user_by_access_token(access_token)
+                if not user:
+                    session.clear()
+                    access_token = ""
+                return jsonify({ 'access_token': access_token, 'email': user.email, 'name': user.name })
         return jsonify({ 'access_token': "", 'email': "", 'name': "" })
     elif do == "logout":
         email = request.args.get('email')
@@ -52,18 +59,34 @@ def parse_api():
         return get_playlists.get_featured_playlists()
     elif do == "getUserPlaylists":
         return get_playlists.get_user_playlists()
+    elif do == "getProcessingTracks":
+        processing_tracks = session.get('processing_tracks')
+        if processing_tracks is None:
+            return jsonify([])
+        return jsonify(processing_tracks)
     elif do == "getTracks":
         track_data = []
+        # session['processing_tracks'] = track_data
         pid = request.args.get('pid')
         if pid is None or pid == "":
             return jsonify([])
         print("getTracks pid: ", pid)
         res = crud.fetch_playlist_tracks_data(pid)
         # bail if Spotify loading error
-        if res is None or "items" not in res:
+        if res is None:
             return jsonify([])
-        for track in res['items']:
+        if "items" in res:
+            track_res = res['items']
+        else:
+            track_res = res
+        # print("getTracks valid res: ", res['items'])
+        data = {}
+
+        for track in track_res:
+            if data == {}:
+                print(track)
             data = {}
+
             try:
                 data['id'] = track['track']['id']
                 data['title'] = track['track']['name']
@@ -85,15 +108,22 @@ def parse_api():
                         artist = data['artist'] or '',
                         album_art = data['art'] or '',
                         explicit = bool(data['explicit']),
+                        instrumentalness = None,
                         bad_words_count = -1,
                     )
                     if track:
                         # fetch and store the lyrics if not in db
                         crud.get_words_of_lyrics(track)
-                track_data.append(data) 
-            except(TypeError):
-                continue   
+                track_data.append(data)
+                session['processing_tracks'] = track_data
+            except Exception as e:
+                print(e)
+                continue
+            # except(TypeError):
+            #     print("type error", TypeError)
+            #     continue
         # print(track_data)
+        # session.pop('processing_tracks')
         return jsonify(track_data)
     elif do == "filterTracks":
         # get_json() is required for parsing JSON sent via POST instead of GET
@@ -142,7 +172,7 @@ def parse_api():
         playlist_name = f"{username}'s clean {title}"
         if (access_token):
             user = crud.get_user_by_access_token(access_token)
-            sp = spotipy.Spotify(auth_manager=auth_manager)     
+            sp = spotipy.Spotify(auth_manager=auth_manager)
             plist = sp.user_playlist_create(user.spotify_id, playlist_name)
             print("server savePlaylist route, user playlist: ", plist)
             sp.playlist_add_items(plist['id'], track_ids)
@@ -162,6 +192,7 @@ def get_email_and_token():
     if request.args.get('code'):
         #token = crud.get_spotify_token(request.args.get('code'))
         token_info = auth_manager.get_access_token(request.args.get('code'), check_cache=False)
+        session['token_info'] = token_info
         spotify = spotipy.Spotify(auth_manager=auth_manager)
         email = spotify.me()["email"]
         name = spotify.me()["display_name"]
@@ -192,4 +223,4 @@ def get_email_and_token():
 
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=True)
+    app.run(host='0.0.0.0', debug=False)

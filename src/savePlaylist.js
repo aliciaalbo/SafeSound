@@ -1,5 +1,6 @@
 import React from 'react';
-
+import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
+import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 
 function SavePlaylist(props) {
     const handleClick = (e) => {
@@ -19,12 +20,13 @@ function SavePlaylist(props) {
             });
         // }
     };
+    // btn-actions justify-content-center flex-nowrap
     return (
-        <div>
-            <button className="btn-actions justify-content-center flex-nowrap" onClick={e => { handleClick(e) }}><i className="fas fa-cloud-upload-alt fa-2x"></i>
-            <span>Save Playlist on Spotify</span>
-            </button>
-        </div>
+        <button variant="dark" className="btn btn-primary m-1" onClick={e => { handleClick(e) }}>
+            {/* <i className="fas fa-cloud-upload-alt fa-2x"></i> */}
+            <span>Save Playlist on Spotify &nbsp;</span>
+            <FontAwesomeIcon icon={faCloudUploadAlt} size="1x" />
+        </button>
     )
 }
 

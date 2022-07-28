@@ -1,10 +1,31 @@
-import React from 'react';
+import { useEffect, useState }  from 'react';
 
 function Tracks(props) {
-  // show nothing if nothing loading yet
-  // if (!props.isProcessing && props?.tracks.length === 0) {
-  //   return null
-  // }
+  const [processingTracks, setProcessingTracks] = useState([], "processingTracks")
+
+  const fetchProcessingTracks = () => {
+    fetch(`/api?do=getProcessingTracks`)
+    .then((res) => res.json())
+    .then((res) => {
+      setProcessingTracks(res)
+    });
+  }
+
+  useEffect(() => {
+    const interval = setInterval(() => {
+      if (props.isProcessing) {
+        fetchProcessingTracks();
+      } else {
+        clearInterval(interval);
+      }
+    }, 3000);
+    return () => {
+      clearInterval(interval);
+    };
+  }, [props.isProcessing]);
+
+  const currentTracks = props.isProcessing ? processingTracks : props.tracks
+
   return (
     <div id="show-tracks" className="tracks">
       {/* I want to clear the tracks while it's loading or not have
@@ -15,11 +36,10 @@ function Tracks(props) {
       </div>
       {props.isProcessing ? 
         <div>Processing tracks...</div> :
-        props.tracks.length > 0 ?
-          props.tracks.map((track, index) => {
-            const isFail = props.failingTrackIds.some(failingTrackId => failingTrackId == track.id)
+        currentTracks.length > 0 ?
+          currentTracks.map((track, index) => {
+            const isFail = props.failingTrackIds.some(failingTrackId => failingTrackId === track.id)
             const rowClass = isFail ? "fail-playlist-row" : "playlist-row"
-            const rowclasses = track.id;
             const songNum = index+1;
             return (
               <div className={rowClass} id={track.id} idx={index} key={track.id}>

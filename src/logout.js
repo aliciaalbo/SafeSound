@@ -8,9 +8,9 @@ function Logout(props) {
         props.logoutUser(props.email);
     };
     return (
-        <button variant="dark" className="btn btn-secondary" onClick={e => { handleClick(e) }}>
+        <button variant="dark" className="btn btn-secondary m-1" onClick={e => { handleClick(e) }}>
         <FontAwesomeIcon icon={faSpotify} size="2x" />
-        <span>Logout</span>
+        <span>&nbsp; Logout</span>
     </button>
     )
 }

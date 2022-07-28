@@ -1,5 +1,4 @@
-from xmlrpc.client import boolean
-from model import db, connect_to_db, User, Filter, CachedLyrics, Tracks
+from model import db, User, Filter, CachedLyrics, Tracks
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 # import os
@@ -10,8 +9,9 @@ from bad_words import bad_words
 
 client_credentials_manager = SpotifyClientCredentials(client_id=secret.cid, client_secret=secret.secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-genius = lyricsgenius.Genius()
-
+genius = lyricsgenius.Genius(remove_section_headers=True, retries=3)
+genius.remove_section_headers = True
+genius.retries = 3
 
 def create_user(email, name, spotify_id, access_token, refresh_token):
     """add new user to db and stores their tokens"""
@@ -40,24 +40,35 @@ def logout(email):
     return "Could not logout, no access token"
 
 def get_user_by_access_token(access_token):
-    return User.query.filter(User.access_token == access_token).first()
+    if access_token is None or access_token == "":
+        return None
+    return User.query.filter(User.access_token == access_token).one_or_none()
 
 def get_user_by_email(email):
     """Gets a user by email"""
-    return User.query.filter(User.email == email).first()
+    if email is None or email == "":
+        return None
+    return User.query.filter(User.email == email).one_or_none()
 
 def get_access_token_by_email(email):
     """retrieves access token from db by email lookup"""
-    return User.query(User.access_token).filter(User.email == email)
+    if email is None or email == "":
+        return None
+    return User.query(User.access_token).filter(User.email == email).one_or_none()
 
 def get_refresh_token_by_email(email):
     """retrieves access token from db by email lookup"""
-    return User.query(User.refresh_token).filter(User.email == email)
+    if email is None or email == "":
+        return None
+    return User.query(User.refresh_token).filter(User.email == email).one_or_none()
 
 def update_access_token(email, access_token):
     """updates a user's spotify access token"""
-
-    user = User.query.filter(User.email == email).first()
+    if email is None or email == "" or access_token is None or access_token == "":
+        return None
+    user = User.query.filter(User.email == email).one_or_none()
+    if user is None:
+        return None
     user.access_token = access_token
     db.session.add(user)
     db.session.commit()
@@ -67,40 +78,45 @@ def update_access_token(email, access_token):
 
 def update_refresh_token(email, refresh_token):
     """updates a user's spotify access token"""
-
-    user = User.query.filter(User.email == email).first()
+    if email is None or email == "" or refresh_token is None or refresh_token == "":
+        return None
+    user = User.query.filter(User.email == email).one_or_none()
+    if user is None:
+        return None
     user.refresh_token = refresh_token
     db.session.add(user)
     db.session.commit()
 
     return user
 
-def get_spotify_token(code):
-    SPOTIPY_REDIRECT_URI = secret.spotifyredirect
-    SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing playlist-read-private'
+# NOT CALLED
+# def get_spotify_token(code):
+#     SPOTIPY_REDIRECT_URI = secret.spotifyredirect
+#     SCOPE = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing playlist-read-private'
 
-    # CacheDBHandler is a custom class you need to write to store and retrieve cache in the DB, in cachedb.py
-    auth_manager = SpotifyOAuth(secret.cid, secret.secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None )
-    # ignore cache until make it work
-    token_info = auth_manager.get_access_token(code, check_cache=False)
-    return token_info
+#     # CacheDBHandler is a custom class you need to write to store and retrieve cache in the DB, in cachedb.py
+#     auth_manager = SpotifyOAuth(secret.cid, secret.secret, SPOTIPY_REDIRECT_URI, scope=SCOPE, cache_path=None)
+#     # ignore cache until make it work
+#     token_info = auth_manager.get_access_token(code, check_cache=False)
+#     return token_info
 
-def get_spotify_credentials(code):
-    """submits authorization code to spotify to get token and user email"""
+# NOT CALLED
+# def get_spotify_credentials(code):
+#     """submits authorization code to spotify to get token and user email"""
 
-    # https://github.com/plamere/spotipy/blob/master/spotipy/util.py
-    # http://www.acmesystems.it/python_httpd
+#     # https://github.com/plamere/spotipy/blob/master/spotipy/util.py
+#     # http://www.acmesystems.it/python_httpd
 
-    # query db for access
-    # check id fresh
-    # if yes save play list
-    SPOTIFY_REDIRECT_URI = secret.spotifyredirect
-    SCOPE = 'web-playback user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
-    CACHE = '.spotipyoauthcache'
+#     # query db for access
+#     # check id fresh
+#     # if yes save play list
+#     SPOTIFY_REDIRECT_URI = secret.spotifyredirect
+#     SCOPE = 'web-playback user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing'
+#     CACHE = '.spotipyoauthcache'
 
-    # CacheDB is a custom class you need to make to store the cache in the DB
-    sp_oauth = SpotifyOAuth(secret.cid, secret.secret, SPOTIFY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
-    #sp_oauth = oauth2.SpotifyPKCE(secret.cid,SPOTIPY_REDIRECT_URI,scope=SCOPE,cache_handler="CacheDB")
+#     # CacheDB is a custom class you need to make to store the cache in the DB
+#     sp_oauth = SpotifyOAuth(secret.cid, secret.secret, SPOTIFY_REDIRECT_URI, scope=SCOPE, cache_handler="CacheDB" )
+#     #sp_oauth = oauth2.SpotifyPKCE(secret.cid,SPOTIPY_REDIRECT_URI,scope=SCOPE,cache_handler="CacheDB")
 
 # all above this to go in User class
 
@@ -134,11 +150,9 @@ def insert_track_info(track_id, title, artist, album_art, explicit, bad_words_co
     """saves track id and data from Spotify"""
     track = get_track_info(track_id)
     if track:
-        if track.intrumentalness == False:
+        if track.instrumentalness is None:
             update_instrumentalness(track_id, instrumentalness)
-            return 
-        else:
-            return
+        return track
 
     track = Tracks(
         track_id = track_id,
@@ -146,7 +160,7 @@ def insert_track_info(track_id, title, artist, album_art, explicit, bad_words_co
         artist = artist,
         album_art = album_art,
         explicit = explicit,
-        bad_words_count = bad_words_count
+        bad_words_count = bad_words_count,
         instrumentalness = instrumentalness
     )
     db.session.add(track)
@@ -177,7 +191,7 @@ def update_bad_words_count(track_id, bad_words_count):
 # Do I need to change/should I changethe way this works as well now that the index is there?
 
 def has_lyrics(track_id):
-    if CachedLyrics.query.filter(CachedLyrics.track_id == track_id).one_or_none():
+    if CachedLyrics.query.filter(CachedLyrics.track_id == track_id).first():
         return True
     return False
 
@@ -212,14 +226,14 @@ def save_lyrics(track_id: int, lyrics_words: list, word_counts: list, process_ba
         update_bad_words_count(track_id, bad_words_count)
 
 # returns the words for a track - if not already in system, loads lyrics, parses and adds them
-def get_words_of_lyrics(track) -> list:
+def get_words_of_lyrics(track) -> None:
     word_list = None
     empty_word_list = ['nolyrics']
     # fetch word list if lyrics have already been processed
-    if has_lyrics(track.track_id):
-        word_list = get_words_by_track_id(track.track_id)
+    if not has_lyrics(track.track_id):
+        # word_list = get_words_by_track_id(track.track_id)
     # fetch lyrics if not already in db
-    else:
+    # else:
         # get lyrics from genius and write word counts to db
         lyrics = find_song_lyrics(track.title, track.artist)
         if lyrics is not None:
@@ -230,8 +244,8 @@ def get_words_of_lyrics(track) -> list:
             # store a flag entry so has_lyrics returns true
             word_counts = {'nolyrics': 1}
             save_lyrics(track.track_id, empty_word_list, word_counts, process_bad_words=False)
-        word_list = list(word_counts.keys())
-    return word_list
+        # word_list = list(word_counts.keys())
+    #return word_list
     
 def parse_lyrics(lyrics: str):
     """ replace line breaks and periods with spaces """
@@ -288,12 +302,12 @@ def parse_lyrics(lyrics: str):
 
 
 # refactor to do counts
-
+# TODO: future filters
 def apply_filter(unique_words: list, filter_id: int):
     """checks for exact match of excluded terms, returns boolean"""
     # index is internal to how the DB stores data
     # it gets used automatically if you filter on the fields in the index
-    check_words = Filter.query(Filter.word_list).filter(Filter.filter_id == filter_id).one()
+    check_words = Filter.query(Filter.word_list).filter(Filter.filter_id == filter_id).first()
 
     # fail_words = {}
     # for word in check_words:
@@ -317,6 +331,7 @@ def save_status(track_id, filter_id):
 #     """returns cached pass/fail status of filter applied to track"""
 #     return CachedResult.query(CachedResult.pass_status).filter(CachedResult.track_id == track_id and CachedResult.filter_id == filter_id)
 
+# NOT CALLED
 def get_words_by_track_id(track_id):
     """retrieves cached_lyrics from db"""
     response = db.session.query(CachedLyrics.word).filter(CachedLyrics.track_id == track_id).all()

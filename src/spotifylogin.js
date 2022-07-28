@@ -2,9 +2,10 @@ import React from 'react';
 import { FontAwesomeIcon } from '@fortawesome/react-fontawesome'
 import { faSpotify } from '@fortawesome/free-brands-svg-icons'
 
-function SpotifyLogin() {
+function SpotifyLogin(props) {
   const handleClick = (e) => {
     e.preventDefault();
+    props.logoutUser();
     // to get account info for users: user-read-email
     // to save playlist: playlist-modify-public
     // to stream in player: streaming user-read-email user-read-private user-read-playback-state user-modify-playback-state

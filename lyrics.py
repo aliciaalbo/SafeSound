@@ -1,6 +1,8 @@
 import lyricsgenius
 genius = lyricsgenius.Genius()
 
+############
+# TEST PAGE
 # Genius.search_song(title=None, artist='', song_id=None, get_full_info=True)
 
 song = genius.search_song(title='In Da Club', artist='', song_id=None, get_full_info=True)

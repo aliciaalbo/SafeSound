@@ -53,24 +53,28 @@ function App() {
     // const webplayer = WebPlayer({ access_token: access_token, isReady: isReady, setIsReady: setIsReady, setDeviceId: setDeviceId, setIsPaused: setIsPaused, setCurTrackId: setCurTrackId });
 
     // load the access token through Python's session if can
-    if (!access_token) {
-      console.log('access token check');
-      fetch(`/api?do=getInfo`)
-      .then((response) => response.json())
-      .then((data) => {
-        if (data) {
-          console.log("access token data: ", data)
-          setAccessToken(data.access_token);
-          setName(data.name);
-          setEmail(data.email);
-        
-          console.log('access token set!');
-        }
-      })
-      .catch((err) => {
-        console.log("access token ERROR: ", err);
-      });
-    }
+    // if (!access_token) {
+    console.log('access token check');
+    fetch(`/api?do=getInfo`)
+    .then((response) => response.json())
+    .then((data) => {
+      if (data) {
+        console.log("access token data: ", data)
+        setAccessToken(data.access_token);
+        setName(data.name);
+        setEmail(data.email);
+      
+        console.log('access token set!');
+      } else {
+        setAccessToken("");
+        setName("");
+        setEmail("");
+      }
+    })
+    .catch((err) => {
+      console.log("access token ERROR: ", err);
+    });
+    // }
 
     const fetchPlaylists = (playlistSearchTerm) => {
       setPlaylistSearchTerm(playlistSearchTerm);
@@ -105,14 +109,9 @@ function App() {
       .then((res) => res.json())
       .then((res) => {
               console.log("fetchTracks res: ", res)  
-              // setPlaylistName(playlistName);
               setTracks(res)
               setIsProcessing(false)
-              // setPlaylistName(playlistName);
             });
-      // setPlaylists("");
-      // setPlaylistName(playlistName);
-  
     }
 
     const applyFilters = (tracks, allowedCount) => {
@@ -156,8 +155,11 @@ function App() {
       <section className="page">
         <div id="container">
           <div id="header-block">
-            <SpotifyLogin />
-            <Logout logoutUser={logoutUser} /><br /><br />
+            {access_token ?
+              <Logout logoutUser={logoutUser} /> :
+              <SpotifyLogin logoutUser={logoutUser} />
+            }
+            <br /><br />
           </div>
 
           <div id="left-sidebar">
@@ -167,9 +169,9 @@ function App() {
 
           <div id="main-block">
             <div id="filters">
-              {access_token && failingTrackIds ? <SavePlaylist tracks={tracks} failingTrackIs={failingTrackIds} access_token={access_token} username={name} playlistName={playlistName} pid={pid} setPid={setPid} setIsError={setIsError} /> : null}
               <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
               <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists}  />
+              {access_token && tracks ? <SavePlaylist tracks={tracks} failingTrackIds={failingTrackIds} access_token={access_token} username={name} playlistName={playlistName} pid={pid} setPid={setPid} setIsError={setIsError} /> : null}
               {pid ? (
                 <ShowTracks
                   pid={pid}
