@@ -1,43 +1,44 @@
 import { useEffect, useState }  from 'react';
 
 function Tracks(props) {
-  const [processingTracks, setProcessingTracks] = useState([], "processingTracks")
+  // const [processingTracks, setProcessingTracks] = useState([], "processingTracks")
 
-  const fetchProcessingTracks = () => {
-    fetch(`/api?do=getProcessingTracks`)
-    .then((res) => res.json())
-    .then((res) => {
-      setProcessingTracks(res)
-    });
-  }
+  // const fetchProcessingTracks = () => {
+  //   fetch(`/api?do=getProcessingTracks`)
+  //   .then((res) => res.json())
+  //   .then((res) => {
+  //     setProcessingTracks(res)
+  //   });
+  // }
 
-  useEffect(() => {
-    const interval = setInterval(() => {
-      if (props.isProcessing) {
-        fetchProcessingTracks();
-      } else {
-        clearInterval(interval);
-      }
-    }, 3000);
-    return () => {
-      clearInterval(interval);
-    };
-  }, [props.isProcessing]);
+  // useEffect(() => {
+  //   const interval = setInterval(() => {
+  //     if (props.isProcessing) {
+  //       fetchProcessingTracks();
+  //     } else {
+  //       clearInterval(interval);
+  //     }
+  //   }, 3000);
+  //   return () => {
+  //     clearInterval(interval);
+  //   };
+  // }, [props.isProcessing]);
 
-  const currentTracks = props.isProcessing ? processingTracks : props.tracks
+  // const currentTracks = props.isProcessing ? processingTracks : props.tracks
 
   return (
+    <>
+    <div className="tracks-header">
+      {props.playlistName}
+    </div>
     <div id="show-tracks" className="tracks">
       {/* I want to clear the tracks while it's loading or not have
        the name update until the tracks are loaded what is the 
        best way to do it? I tried a delay but that sucks as is stupid */}
-      <div className="tracks-header">
-        {props.playlistName}
-      </div>
       {props.isProcessing ? 
         <div>Processing tracks...</div> :
-        currentTracks.length > 0 ?
-          currentTracks.map((track, index) => {
+        props.tracks.length > 0 ?
+          props.tracks.map((track, index) => {
             const isFail = props.failingTrackIds.some(failingTrackId => failingTrackId === track.id)
             const rowClass = isFail ? "fail-playlist-row" : "playlist-row"
             const songNum = index+1;
@@ -55,6 +56,7 @@ function Tracks(props) {
           <div>Click "show tracks" to load.</div>
     }
     </div>
+    </>
   );
 }
 

@@ -60,22 +60,24 @@ function ShowFeaturedPlaylists(props){
     </div>
   </div> */}
     <Carousel fade={true}>
-    {featuredPlaylists.map((playlist, index) => {
-      return (
-        <Carousel.Item key={playlist.id} onClick={e => { handleClick(e, playlist.id, playlist.name) }}>
-          <div style={{ maxWidth: "300px" }}>
-            <img
-              className="d-block img-fluid"
-              src={playlist.art}
-            />
-            <Carousel.Caption>
-              <h3>{playlist.title}</h3>
-            </Carousel.Caption>
-          </div>
-        </Carousel.Item>
-      )
-    })}
-
+      {featuredPlaylists.map((playlist, index) => {
+        return (
+          <Carousel.Item
+            key={playlist.id}
+            onClick={e => { handleClick(e, playlist.id, playlist.name) }}
+          >
+            {/* <div style={{ margin:auto;maxWidth: "300px" }}> */}
+            <div>
+              <img className="d-block img-fluid"
+                src={playlist.art}
+              />
+              <Carousel.Caption>
+                <h3>{playlist.title}</h3>
+              </Carousel.Caption>
+            </div>
+          </Carousel.Item>
+        )
+      })}
     </Carousel>
   </div>  
 </div>  

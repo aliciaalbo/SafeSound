@@ -46,18 +46,16 @@ class CachedLyrics(db.Model):
     track_id = db.Column(db.String, db.ForeignKey('tracks.track_id'))
     word = db.Column(db.String)
     word_count = db.Column(db.Integer)
-    # lookup_idx = db.Index('lookup_idx', track_id, word, unique=True)
 
-    # to store word counts - ideas: mapping table? 
-    # have set of words, leave cached lyrics as is
-    # reduce set to banned words, then do count of those words 
 
-    # change lyrics to lyrics id (?), then have mapping table
+class Lyrics(db.Model):
+    """stores lyrics as a string"""
+    __tablename__ = "lyrics"
 
-    # OK I think I have it now - lyrics will be mapping table with lyrics id (primary key),
-    #  track id, word, and then word count then make new table for songs with
-    # track id, title, artist, art, genre, ummm?
-    # THEN redo lyrics functions to store differently
+    lyrics_id = db.Column(db.Integer, primary_key=True, autoincrement=True)
+    track_id = db.Column(db.String, db.ForeignKey('tracks.track_id'))
+    lyrics = db.Column(db.Text)
+
 
 class Tracks(db.Model):
     """stores track data"""

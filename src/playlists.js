@@ -9,6 +9,7 @@ function ShowPlaylists(props) {
         console.log("showPlaylists pid: ", key)
         props.setPid(key)
         props.setPlaylistName(playlistName)
+        props.setTracks([])
     };
 
     const handleDoubleClick = (e) => {
@@ -23,14 +24,21 @@ function ShowPlaylists(props) {
         const rowclasses = playlist.id;
         const playlistNum = index+1;
         return (
-      <div className="playlist-row" id={playlist.id} idx={index} key={playlist.id} playlistName={playlist.name} onClick={e => { handleClick(e, playlist.id) }} onDoubleClick={e => { handleDoubleClick(e) }}>
+      <div className="playlist-row"
+        id={playlist.id}
+        idx={index} 
+        key={playlist.id} 
+        playlistName={playlist.name} 
+        onClick={e => { handleClick(e, playlist.id, playlist.name) }} 
+        onDoubleClick={e => { handleDoubleClick(e) }}
+      >
         <div className="playlist-number col-auto my-auto">{playlistNum}</div>
         <div className="playlist-album col-auto my-auto"><img src={playlist.art} width="100" /></div>
         <div className="playlist-trackinfo col my-auto">
           <div className="playlist-title">{playlist.name}</div>
           <div className="playlist-artist">{playlist.description}</div>
         </div>
-     </div>
+      </div>
         )}
       )}
     </div>

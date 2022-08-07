@@ -45,6 +45,10 @@ code {
   grid-area: right-sidebar;
 }
 
+#playlist-search-input {
+  font-size: 1em;
+}
+
 .searchbar {
   width:80%;
 }
@@ -54,7 +58,7 @@ code {
 .tracks {
   width:80%;
   max-width:800px;
-  margin:2em 0 0 0;
+  margin:0;
   background-color:#666;
   max-height: 20em;
   overflow-y: scroll;
@@ -65,12 +69,22 @@ code {
 .tracks-header {
   background-color:#999;
   display:block;
+  width: 80%;
+  max-width:800px;
+  margin:2em 0 0 0;
+  padding:.6em .7em .4em .7em;
+  font-weight:bold;
+  font-size:1.2em;
+}
+/* .tracks-header {
+  background-color:#999;
+  display:block;
   width:100%;
   margin:0;
   padding:.6em .7em .4em .7em;
   font-weight:bold;
   font-size:1.2em;
-}
+} */
 
 .track-row {
   padding: .2em 0;
@@ -148,4 +162,10 @@ code {
 .playlist-artist{
   margin-top:.2em;
   font-size: smaller;
+}
+
+.carousel-inner img {
+  margin: auto;
+  max-height: 300px;
+  /* max-width: 300px; */
 }

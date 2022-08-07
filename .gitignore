@@ -5,6 +5,7 @@ secret.py
 SafeSound/
 __pycache__/
 *.sql
+*.tgz
 .env
 .cache
 requirements.orig.txt

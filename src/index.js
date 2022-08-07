@@ -18,6 +18,7 @@ import UserPlaylists from './userPlaylists';
 import 'bootstrap/dist/css/bootstrap.css';
 import './index.css';
 import SavePlaylist from './savePlaylist';
+import AllowInstrumental from './instrumental';
 
 function App() {
     // stickyState only works for strings, atm
@@ -30,10 +31,10 @@ function App() {
     const [tracks, setTracks] = useState([], "tracks")
     const [pid, setPid] = useState("", "pid");
     const [playlistName, setPlaylistName] = useState("", "playlistName")
-    // const [heldPlaylistName, setHeldPlaylistName] = useState("", "heldPlaylistName")
     const [failingTrackIds, setFailingTrackIds] = useState([]);
     const [passingTracks, setPassingTracks] = useState([])
     const [allowNoLyrics, setAllowNoLyrics] = useState(false, "allowNoLyrics")
+    const [allowInstrumental, setAllowInstrumental] = useState(true, "allowInstrumental")
     const [userPlaylists, setUserPlaylists] = useState("", "userPlaylists")
     const [isProcessing, setIsProcessing] = useState(false)
 
@@ -43,7 +44,6 @@ function App() {
     const [isPaused, setIsPaused] = useState(true);
     const [curTrackId, setCurTrackId] = useState("");
     const [playbackToggle, setPlaybackToggle] = useState('no');
-    // const [pid, setPid] = useState("");
     const [isError, setIsError] = useState(false);
 
 
@@ -118,6 +118,7 @@ function App() {
       const params = {
         track_ids: tracks.map((track) => track.id),
         allow_no_lyrics: allowNoLyrics,
+        allow_instrumental: allowInstrumental,
         allowed_count: allowedCount,
       };
       fetch("/api?do=filterTracks",
@@ -137,18 +138,16 @@ function App() {
 
 
     const logoutUser = (email) => {
-      if (email) {
-        fetch(`/api?do=logout&email=${encodeURIComponent(email)}`)
-        .then(() => {
-          console.log('logout attempt')
-          setAccessToken("");
-          setName("");
-          setEmail("");
-        })
-        .catch((err) => {
-            console.log("logoutUser ERROR: ",err);
-        });
-      }
+      fetch(`/api?do=logout&email=${encodeURIComponent(email)}`)
+      .then(() => {
+        console.log('logout attempt')
+        setAccessToken("");
+        setName("");
+        setEmail("");
+      })
+      .catch((err) => {
+          console.log("logoutUser ERROR: ",err);
+      });
     };
 
     return (
@@ -156,7 +155,7 @@ function App() {
         <div id="container">
           <div id="header-block">
             {access_token ?
-              <Logout logoutUser={logoutUser} /> :
+              <Logout name={name} logoutUser={logoutUser} /> :
               <SpotifyLogin logoutUser={logoutUser} />
             }
             <br /><br />
@@ -169,9 +168,28 @@ function App() {
 
           <div id="main-block">
             <div id="filters">
-              <AllowNoLyrics setAllowNoLyrics={setAllowNoLyrics}/>
+              <div>
+                <AllowNoLyrics
+                  allowNoLyrics={allowNoLyrics}
+                  setAllowNoLyrics={setAllowNoLyrics}
+                />
+                &nbsp; &nbsp; &nbsp; 
+                <AllowInstrumental
+                  allowInstrumental={allowInstrumental}
+                  setAllowInstrumental={setAllowInstrumental}
+                />
+              </div>
               <ShowUserPlaylists fetchUserPlaylists={fetchUserPlaylists}  />
-              {access_token && tracks ? <SavePlaylist tracks={tracks} failingTrackIds={failingTrackIds} access_token={access_token} username={name} playlistName={playlistName} pid={pid} setPid={setPid} setIsError={setIsError} /> : null}
+              {access_token && tracks ? <SavePlaylist
+                tracks={tracks}
+                failingTrackIds={failingTrackIds}
+                access_token={access_token}
+                username={name}
+                playlistName={playlistName}
+                pid={pid}
+                setPid={setPid}
+                setIsError={setIsError}
+              /> : null}
               {pid ? (
                 <ShowTracks
                   pid={pid}
@@ -220,6 +238,7 @@ function App() {
                 playlists={playlists}
                 setPid={setPid}
                 setPlaylistName={setPlaylistName}
+                setTracks={setTracks}
                 fetchTracks={fetchTracks}
               />
             ) : null}

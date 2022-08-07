@@ -5,10 +5,20 @@ import { faCloudUploadAlt } from '@fortawesome/free-solid-svg-icons';
 function SavePlaylist(props) {
     const handleClick = (e) => {
         e.preventDefault();
-        const tracks = props.tracks;
         props.setPid("");
+        const params = {
+            track_ids: props.tracks.map((track) => track.id),
+            access_token: props.access_token,
+            failing_track_ids: props.failingTrackIds,
+            username: props.username,
+            playlist_name: props.playlistName,
+        };
         props.setIsError(false);
-            fetch(`/api?do=savePlaylist&access_token=${encodeURIComponent(props.access_token)}&track_ids=${encodeURIComponent(tracks)}&failingTrackIds=${encodeURIComponent(props.failingTrackIds)}&username=${props.username}&title=${props.title}`)
+            fetch("/api?do=savePlaylist", {
+                method: 'POST',
+                headers: { 'Content-Type': 'application/json' },
+                body: JSON.stringify(params)
+            })
             .then((res) => res.json())
             .then((pid) => {
                 console.log("SavePlaylist new pid: ", pid);

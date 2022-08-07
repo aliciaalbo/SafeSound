@@ -21,8 +21,8 @@ function SpotifyLogin(props) {
 
   // className="btn-actions justify-content-center flex-nowrap"
   return (
-    <button variant="dark" className="btn btn-secondary" onClick={e => { handleClick(e) }}>
-      <FontAwesomeIcon icon={faSpotify} size="2x" />
+    <button variant="dark" className="btn btn-secondary rounded-pill btn-dark" onClick={e => { handleClick(e) }}>
+      <FontAwesomeIcon icon={faSpotify} size="1x" />
       <span>&nbsp; Login with Spotify</span>
     </button>
   )

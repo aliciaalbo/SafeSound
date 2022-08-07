@@ -1,4 +1,4 @@
-from model import db, User, Filter, CachedLyrics, Tracks
+from model import db, User, Filter, CachedLyrics, Tracks, Lyrics
 import spotipy
 from spotipy.oauth2 import SpotifyOAuth, SpotifyClientCredentials
 # import os
@@ -32,10 +32,11 @@ def logout(email):
     if (email):
         user = get_user_by_email(email)
         print("logout user: ", user)
-        update_access_token(user.email, "")
-        update_refresh_token(user.email, "")
-        db.session.add(user)
-        db.session.commit()
+        if user is not None:
+            update_access_token(user.email, "")
+            update_refresh_token(user.email, "")
+            db.session.add(user)
+            db.session.commit()
         return "Logout successful"
     return "Could not logout, no access token"
 
@@ -120,11 +121,36 @@ def update_refresh_token(email, refresh_token):
 
 # all above this to go in User class
 
+def find_song_lyrics_last_chance(title, artist):
+    try:
+        return genius.search_song(title=title, artist=artist, song_id=None, get_full_info=True)
+    except Exception as e:
+        print("find_song_lyrics_last_chance error: genius second attempt failure")
+        return None
+
 def find_song_lyrics(title, artist):
     """searches genius for single title and returns lyrics as string"""
-    song = genius.search_song(title=title, artist=artist, song_id=None, get_full_info=True)
+    try:
+        song = genius.search_song(title=title, artist=artist, song_id=None, get_full_info=True)
+    except Exception as e:
+        print("find_song_lyrics error: genius first attempt failure")
+        genius = lyricsgenius.Genius(remove_section_headers=True, retries=3)
+        song = find_song_lyrics_last_chance(title, artist)
+
     if song is not None:
-        return song.lyrics
+        lyrics = song.lyrics
+        if lyrics[-5:] == 'Embed':
+            lyrics = lyrics[:-5]
+        return lyrics
+
+def save_song_lyrics(track_id, lyrics):
+    """saves entire text of song lyrics as string"""
+    lyrics = Lyrics(
+        track_id = track_id,
+        lyrics = lyrics
+    )
+    db.session.add(lyrics)
+    db.session.commit()
 
 def find_playlist_lyrics(playlist_id):
     """searches genius for batch of songs, returns dictionary(? tbd)"""
@@ -148,9 +174,11 @@ def get_track_info(track_id):
 
 def insert_track_info(track_id, title, artist, album_art, explicit, bad_words_count, instrumentalness):
     """saves track id and data from Spotify"""
+    # don't add if already exists
     track = get_track_info(track_id)
     if track:
-        if track.instrumentalness is None:
+        # but update instrumentalness if missing
+        if track.instrumentalness is None and instrumentalness is not None:
             update_instrumentalness(track_id, instrumentalness)
         return track
 
@@ -166,6 +194,25 @@ def insert_track_info(track_id, title, artist, album_art, explicit, bad_words_co
     db.session.add(track)
     db.session.commit()
     return track
+
+def fetch_instrumentalness(track_id):
+    """fetches instrumentalness from spotify audio features"""
+    try:
+        audio_features = spotify.audio_features(track_id)
+        print("audio features for track", track_id,  audio_features)
+        if audio_features != [None]:
+            instrumentalness = audio_features[0]['instrumentalness']
+            if instrumentalness:
+                # print(instrumentalness)
+                return instrumentalness
+            else: 
+                return 0
+        else:
+            return 0
+    except Exception as e:
+        print("fetch_instrumentalness error:", e)
+        return 0
+
 
 def update_instrumentalness(track_id, instrumentalness):
     """updates track info with instrumentalness"""
@@ -237,6 +284,7 @@ def get_words_of_lyrics(track) -> None:
         # get lyrics from genius and write word counts to db
         lyrics = find_song_lyrics(track.title, track.artist)
         if lyrics is not None:
+            save_song_lyrics(track.track_id, lyrics)
             lyrics_words = parse_lyrics(lyrics)
             word_counts = count_words(lyrics_words)
             save_lyrics(track.track_id, lyrics_words, word_counts, process_bad_words=True)
@@ -340,42 +388,54 @@ def get_words_by_track_id(track_id):
 
 def search_for_playlists(search_term):
     """searches Spotify for playlists and returns top 10 playlist objects"""
-    response = spotify.search(search_term, type="playlist")
-    return response
+    try:
+        response = spotify.search(search_term, type="playlist")
+        return response
+    except Exception as e:
+        print("search_for_playlists error:", e)
+        return {}
 
 def search_for_featured_playlists():
     """returns top 5 playlists featured by spotify"""
-    response = spotify.featured_playlists(limit=20)
-    return response
+    try:
+        response = spotify.featured_playlists(limit=20)
+        return response
+    except Exception as e:
+        print("search_for_featured_playlists error:", e)
+        return {}
 
 def search_for_user_playlists():
     """returns user's saved playlists (50)"""
-    response = spotify.current_user_playlists(limit=50)
-    user_playlists = []
-    for playlist in response['items']:
-        data = {}
-        if playlist['id']:
-            data['id'] = playlist['id']
-            data['description'] = playlist['description'] or ""
-            data['name'] = playlist['name'] or ""
-            data['art'] = playlist['images'][0]['url'] if playlist['images'] else ""
-            user_playlists.append(data)
-
-    print("user playlists:", len(user_playlists))
-    # return True
-    return response
+    try:
+        response = spotify.current_user_playlists(limit=50)
+        user_playlists = []
+        for playlist in response['items']:
+            data = {}
+            if playlist['id']:
+                data['id'] = playlist['id']
+                data['description'] = playlist['description'] or ""
+                data['name'] = playlist['name'] or ""
+                data['art'] = playlist['images'][0]['url'] if playlist['images'] else ""
+                user_playlists.append(data)
+        # print("user playlists:", len(user_playlists))
+        return response
+    except Exception as e:
+        print("search_for_user_playlists error:", e)
+        return {}
 
 def fetch_playlist_tracks_data(pid):
     """get song titles and id's from Spotify playlist"""
-    response = spotify.playlist_items(pid
-                                    # fields='items.track.id,items.track.name,items.track.artists,items.track.album,total',
-                                    # additional_types=['track'])
-                                    )
-    # for track in response["items"]:
-    #     print(track['track']['id'])
-    # return True
-    return response
-
+    try:
+        response = spotify.playlist_items(pid)
+            # fields='items.track.id,items.track.name,items.track.artists,items.track.album,total',
+            # additional_types=['track'])
+        # for track in response["items"]:
+        #     print(track['track']['id'])
+        # return True
+        return response
+    except Exception as e:
+        print("fetch_playlist_tracks_data error:", e)
+        return None
 # refactor to get title, atrist, art, track id  
 # def get_song_info(playlist_id):
 #     """get song titles and id's from Spotify playlist"""
