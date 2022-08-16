@@ -16,7 +16,7 @@ function PlaylistSearch(props) {
     <div className="input-group">
       <input id="playlist-search-input" variant="dark" type="text" className="form-control" name="playlistSearchTerm" defaultValue="" placeholder="Search for Playlists" required />
       <div className="input-group-append">
-        <button variant="dark" className="btn btn-secondary" type="submit">
+        <button variant="dark" className="btn btn-secondary dark-button" type="submit">
           <FontAwesomeIcon icon={faSearch} />
         </button>
       </div>

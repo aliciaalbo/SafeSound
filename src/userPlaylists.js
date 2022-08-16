@@ -9,11 +9,6 @@ function UserPlaylists(props) {
         console.log("user playlist set: ", pid)
     };
 
-    const handleDoubleClick = (e) => {
-        e.preventDefault()
-    }
-    
-
     return(
       <div id="my-playlists" className="playlist">
       <div className="playlist-header">My Playlists</div>

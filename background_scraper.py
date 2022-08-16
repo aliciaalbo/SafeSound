@@ -5,8 +5,8 @@ import crud
 import get_playlists
 
 
-def get_featured_pids():
-    get_playlists.get_featured_playlists()
+def get_playlists():
+    ()
 
 def get_track_data(pid):
     track_data = []

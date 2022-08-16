@@ -405,7 +405,7 @@ def search_for_featured_playlists():
         return {}
 
 def search_for_user_playlists():
-    """returns user's saved playlists (50)"""
+    """returns logged in user's saved playlists (50)"""
     try:
         response = spotify.current_user_playlists(limit=50)
         user_playlists = []
@@ -422,6 +422,8 @@ def search_for_user_playlists():
     except Exception as e:
         print("search_for_user_playlists error:", e)
         return {}
+
+
 
 def fetch_playlist_tracks_data(pid):
     """get song titles and id's from Spotify playlist"""

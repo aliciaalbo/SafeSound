@@ -30,7 +30,7 @@ def run():
             try:
                 song = genius.search_song(title=title, artist=artist, song_id=None, get_full_info=True)
             except Exception as e:
-                print("find_song_lyrics error: genius first attempt failure")
+                print("find_song_lyrics error: genius first attempt failure:", e)
                 genius = lyricsgenius.Genius(access_token=secret.GENIUS_ACCESS_TOKEN, remove_section_headers=True, retries=3)
                 try:
                     song = genius.search_song(title=title, artist=artist, song_id=None, get_full_info=True)

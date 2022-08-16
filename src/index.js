@@ -153,6 +153,7 @@ function App() {
     return (
       <section className="page">
         <div id="container">
+          {/* HEADER ------ */}
           <div id="header-block">
             {access_token ?
               <Logout name={name} logoutUser={logoutUser} /> :
@@ -161,11 +162,38 @@ function App() {
             <br /><br />
           </div>
 
+          {/* LEFT SIDEBAR ------ */}
           <div id="left-sidebar">
+            {/* Logo */}
+            <div id="logo-wrapper"><div id="logo">
+              <span>SafeSound</span>
+              <span>SafeSound</span>
+            </div></div>
+
             {/* Search */}
             <PlaylistSearch fetchPlaylists={fetchPlaylists} />
+
+            {/* User Playlists */}
+            {userPlaylists.length ? (
+              <UserPlaylists
+                userPlaylists={userPlaylists}
+                setPid={setPid}
+                setPlaylistName={setPlaylistName}
+                fetchTracks={fetchTracks}
+              />
+            ) : null}
+            {playlists.length ? (
+              <ShowPlaylists
+                playlists={playlists}
+                setPid={setPid}
+                setPlaylistName={setPlaylistName}
+                setTracks={setTracks}
+                fetchTracks={fetchTracks}
+              />
+            ) : null}
           </div>
 
+          {/* CENTER COLUMN ------ */}
           <div id="main-block">
             <div id="filters">
               <div>
@@ -200,6 +228,14 @@ function App() {
               {tracks.length ? <ApplyFilters tracks={tracks} applyFilters={applyFilters}/> : null }
             </div>
 
+  
+            {/* Featured Playlists */}
+            <ShowFeaturedPlaylists
+              setPid={setPid}
+              setPlaylistName={setPlaylistName}
+              setTracks={setTracks}
+            />
+
             {/* Tracks */}
             {pid && playlistName ?
               <Tracks
@@ -208,13 +244,6 @@ function App() {
                 playlistName={playlistName}
                 isProcessing={isProcessing}
               /> : null }
-  
-            {/* Featured Playlists */}
-            <ShowFeaturedPlaylists
-              setPid={setPid}
-              setPlaylistName={setPlaylistName}
-              setTracks={setTracks}
-            />
  
             {/* Spotify Player
             {access_token && deviceId && tracks.length ? 
@@ -223,25 +252,8 @@ function App() {
             {/* add to spotplayer later playlist={playlist} */} 
           </div>
 
+          {/* RIGHT SIDEBAR ------ */}
           <div id="right-sidebar">
-            {/* User Playlists */}
-            {userPlaylists.length ? (
-              <UserPlaylists
-                userPlaylists={userPlaylists}
-                setPid={setPid}
-                setPlaylistName={setPlaylistName}
-                fetchTracks={fetchTracks}
-              />
-            ) : null}
-            {playlists.length ? (
-              <ShowPlaylists
-                playlists={playlists}
-                setPid={setPid}
-                setPlaylistName={setPlaylistName}
-                setTracks={setTracks}
-                fetchTracks={fetchTracks}
-              />
-            ) : null}
           </div>
         </div>
       </section>
