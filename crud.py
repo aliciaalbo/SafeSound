@@ -396,7 +396,7 @@ def search_for_playlists(search_term):
         return {}
 
 def search_for_featured_playlists():
-    """returns top 5 playlists featured by spotify"""
+    """returns top playlists featured by spotify"""
     try:
         response = spotify.featured_playlists(limit=20)
         return response

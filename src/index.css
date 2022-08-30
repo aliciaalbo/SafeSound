@@ -224,7 +224,7 @@ code {
 }
 
 .dark-button {
-  background-color: #022;
+  background-color: rgba(0, 0, 0);
 }
 .dark-button:hover {
   background-color: #244;
