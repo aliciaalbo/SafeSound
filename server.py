@@ -195,8 +195,8 @@ def parse_api():
             sp.playlist_add_items(plist['id'], track_ids)
             print("Playlist added: ", plist['id'])
             return jsonify(plist['id'])
-        return ""           
-        # pass        
+        return ""
+        # pass
 
 
 
@@ -208,6 +208,8 @@ def parse_api():
 def get_email_and_token():
     if request.args.get('code'):
         #token = crud.get_spotify_token(request.args.get('code'))
+        import logging
+        logging.exception(request.args.get('code'))
         token_info = auth_manager.get_access_token(request.args.get('code'), check_cache=False)
         session['token_info'] = token_info
         spotify = spotipy.Spotify(auth_manager=auth_manager)
@@ -236,8 +238,7 @@ def get_email_and_token():
     # email = sp.user(email)
     # pprint.pprint(email)
     # # token = crud.get_spotify_credentials(code)
-    return redirect('http://localhost:3000')
-
+    return redirect('/')
 
 if __name__ == '__main__':
     app.run(host='0.0.0.0', debug=False)

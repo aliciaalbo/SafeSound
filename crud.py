@@ -9,9 +9,9 @@ from bad_words import bad_words
 
 client_credentials_manager = SpotifyClientCredentials(client_id=secret.cid, client_secret=secret.secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-genius = lyricsgenius.Genius(remove_section_headers=True, retries=3)
-genius.remove_section_headers = True
-genius.retries = 3
+#genius = lyricsgenius.Genius(remove_section_headers=True, retries=3)
+#genius.remove_section_headers = True
+#genius.retries = 3
 
 def create_user(email, name, spotify_id, access_token, refresh_token):
     """add new user to db and stores their tokens"""

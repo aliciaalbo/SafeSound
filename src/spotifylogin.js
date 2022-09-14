@@ -12,7 +12,7 @@ function SpotifyLogin(props) {
     // to show the favorite button: user-library-read user-library-modify
     // also in there for some reason: user-read-currently-playing
     const scopes = 'user-read-email playlist-modify-public streaming user-read-private user-read-playback-state user-modify-playback-state user-library-read user-library-modify user-read-currently-playing';
-    const callbackurl = 'http://localhost:5000/callback';
+    const callbackurl = 'https://safesound.aliciaalbo.com/callback';
     window.location.href='https://accounts.spotify.com/authorize?response_type=code' +
     '&client_id=abaeefb2130e47db9598b38066ae8d5b' +
     (scopes ? '&scope=' + encodeURIComponent(scopes) : '') +
