@@ -1,3 +1,0 @@
-cd /root/src/SafeSound
-source env/bin/activate
-source secrets.sh
