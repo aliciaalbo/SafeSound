@@ -10,7 +10,7 @@ import spotipy
 from spotipy.oauth2 import SpotifyClientCredentials
 from spotipy.oauth2 import SpotifyOAuth
 import secret
-# import os
+import os
 
 app = Flask(__name__)
 app.secret_key = secret.secret_key
@@ -241,4 +241,4 @@ def get_email_and_token():
     return redirect('/')
 
 if __name__ == '__main__':
-    app.run(host='0.0.0.0', debug=False)
+    app.run(host='0.0.0.0', debug=True)

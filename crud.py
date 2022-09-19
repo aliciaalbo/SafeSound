@@ -9,7 +9,7 @@ from bad_words import bad_words
 
 client_credentials_manager = SpotifyClientCredentials(client_id=secret.cid, client_secret=secret.secret)
 spotify = spotipy.Spotify(client_credentials_manager=client_credentials_manager)
-#genius = lyricsgenius.Genius(remove_section_headers=True, retries=3)
+genius = lyricsgenius.Genius(access_token=secret.GENIUS_ACCESS_TOKEN, remove_section_headers=True, retries=3)
 #genius.remove_section_headers = True
 #genius.retries = 3
 
@@ -134,7 +134,7 @@ def find_song_lyrics(title, artist):
         song = genius.search_song(title=title, artist=artist, song_id=None, get_full_info=True)
     except Exception as e:
         print("find_song_lyrics error: genius first attempt failure")
-        genius = lyricsgenius.Genius(remove_section_headers=True, retries=3)
+        genius = lyricsgenius.Genius(access_token=secret.GENIUS_ACCESS_TOKEN, remove_section_headers=True, retries=3)
         song = find_song_lyrics_last_chance(title, artist)
 
     if song is not None:
@@ -205,7 +205,7 @@ def fetch_instrumentalness(track_id):
             if instrumentalness:
                 # print(instrumentalness)
                 return instrumentalness
-            else: 
+            else:
                 return 0
         else:
             return 0
