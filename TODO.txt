@@ -1,0 +1,14 @@
+- browse my playlists all shifted around
+
+- safesound logo link to homepage/refresh page
+
+- center component not at the top - search pushed down when not logged in. Looks ok after login and if you log out though
+
+- tracks get weird indentations sometimes
+- can we have text wrap next to image instead of going under or always go under
+
+
+- if there is an error it just shows processing for forever
+- kill process on front end if you click on new playlist. Title updates but old process continues and loads. If you save the playlist, it saves with the new (wrong) playlist title
+- sometimes the processing is really really slow or doesn't complete but doesn't throw any errors. Just hangs up. I don't know what to do about this. Time out? how long?
+

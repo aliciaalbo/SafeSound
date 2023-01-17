@@ -58,11 +58,102 @@ def parse_api():
         return get_playlists.get_featured_playlists()
     elif do == "getUserPlaylists":
         return get_playlists.get_user_playlists()
-    # elif do == "getProcessingTracks":
-    #     processing_tracks = session.get('processing_tracks')
-    #     if processing_tracks is None:
-    #         return jsonify([])
-    #     return jsonify(processing_tracks)
+    elif do == "getTracksOnly":
+        track_data = []
+        pid = request.args.get('pid')
+        if pid is None or pid == "":
+            return jsonify([])
+        res = crud.fetch_playlist_tracks_data(pid)
+        if res is None:
+            return jsonify([])
+        if "items" in res:
+            track_res = res['items']
+        else:
+            track_res = res
+        for track in track_res:
+            data = {}
+            try:
+                # skip empty tracks
+                if 'track' not in track or 'id' not in track['track'] or track['track']['id'] is None:
+                    continue
+                # populate core track data from Spotify JSON
+                data['id'] = track['track']['id']
+                data['title'] = track['track']['name']
+                data['art'] = track['track']['album']['images'][0]['url'] if track['track']['album']['images'] else ""
+                artist_name = ''
+                for artist in track['track']['artists']:
+                    if artist_name == '':
+                        artist_name = artist['name']   
+                    else:
+                        artist_name = artist_name + ', ' + artist['name']
+                data['artist'] = artist_name
+                data['explicit'] = track['track']['explicit']
+                # default to -1 meaning lyrics have not yet been checked
+                data['bad_words_count'] = -1
+
+                if not data['id']:
+                    continue
+
+                # check if track is already in db
+                existing_track = crud.get_track_info(data['id'])
+                if existing_track is not None:
+                    # track exists and is complete
+                    if existing_track.instrumentalness is not None:
+                        data['instrumentalness'] = existing_track.instrumentalness
+                    # track exists but is missing instrumentalness, so fill it in
+                    else:
+                        data['instrumentalness'] = crud.fetch_instrumentalness(data['id'])
+                        crud.update_instrumentalness(data['id'], data['instrumentalness'])
+                # new track data needs an extra call to Spotify to get instrumentalness from audio features
+                else:
+                    # fetch value or return 0
+                    data['instrumentalness'] = crud.fetch_instrumentalness(data['id'])
+
+                # if it is a new track, insert the track info
+                if existing_track is None:
+                    track = crud.insert_track_info(
+                        track_id = data['id'],
+                        title = data['title'] or '',
+                        artist = data['artist'] or '',
+                        album_art = data['art'] or '',
+                        explicit = bool(data['explicit']),
+                        bad_words_count = -1,
+                        instrumentalness = data['instrumentalness'] or 0,
+                    )
+                    data['processed'] = False
+                # record exists in DB, but processing has not been done
+                elif existing_track.bad_words_count == -1:
+                    data['processed'] = False
+                else:
+                    data['processed'] = True
+                track_data.append(data)
+            except Exception as e:
+                continue
+        return jsonify(track_data)
+
+    elif do == "processTracks":
+        track_data = []
+        # POST processing for the array of ids
+        track_ids = request.get_json().get('track_ids')
+        if len(track_ids) == 0:
+            return jsonify([])
+        for track_id in track_ids:
+            existing_track = crud.get_track_info(track_id)
+            print("processing - existing track:", existing_track)
+            bad_words_count = crud.get_words_of_lyrics(existing_track)
+            print("processing - bad:", bad_words_count)
+
+            track_data.append({
+                "id": existing_track.track_id,
+                "title": existing_track.title,
+                "artist": existing_track.artist,
+                "art": existing_track.album_art,
+                "explicit": existing_track.explicit,
+                "bad_words_count": bad_words_count if bad_words_count is not None else -1,
+                "instrumentalness": existing_track.instrumentalness,
+                "processed": True,
+            })
+        return jsonify(track_data)
     elif do == "getTracks":
         track_data = []
         # session['processing_tracks'] = track_data

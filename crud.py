@@ -271,11 +271,13 @@ def save_lyrics(track_id: int, lyrics_words: list, word_counts: list, process_ba
     db.session.commit()
     if process_bad_words:
         update_bad_words_count(track_id, bad_words_count)
+        return bad_words_count
 
 # returns the words for a track - if not already in system, loads lyrics, parses and adds them
-def get_words_of_lyrics(track) -> None:
+def get_words_of_lyrics(track) -> int | None:
     word_list = None
     empty_word_list = ['nolyrics']
+    print('get words: ', track.track_id)
     # fetch word list if lyrics have already been processed
     if not has_lyrics(track.track_id):
         # word_list = get_words_by_track_id(track.track_id)
@@ -287,11 +289,16 @@ def get_words_of_lyrics(track) -> None:
             save_song_lyrics(track.track_id, lyrics)
             lyrics_words = parse_lyrics(lyrics)
             word_counts = count_words(lyrics_words)
-            save_lyrics(track.track_id, lyrics_words, word_counts, process_bad_words=True)
+            print('word count:', word_counts)
+            return save_lyrics(track.track_id, lyrics_words, word_counts, process_bad_words=True)
         else:
             # store a flag entry so has_lyrics returns true
             word_counts = {'nolyrics': 1}
+            print('no word count:', word_counts)
             save_lyrics(track.track_id, empty_word_list, word_counts, process_bad_words=False)
+            return 0
+    else:
+        print("has lyrics: ", track.track_id)
         # word_list = list(word_counts.keys())
     #return word_list
     

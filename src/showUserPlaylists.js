@@ -1,10 +1,10 @@
-import React from 'react';
+import React from 'react'
 
-function ShowUserPlaylists(props){
+function ShowUserPlaylists(props) {
     const handleClick = (e) => {
         e.preventDefault();
-        props.fetchUserPlaylists();
-        
+        props.fetchUserPlaylists()
+
     };
     return (
         <button variant="dark" className="btn btn-secondary m-1" onClick={e => { handleClick(e) }}>
@@ -14,4 +14,4 @@ function ShowUserPlaylists(props){
 }
 
 
-export default ShowUserPlaylists;
+export default ShowUserPlaylists
